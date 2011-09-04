@@ -1,0 +1,84 @@
+package com.rsmart.kuali.tools.ant.tasks;
+
+import com.rsmart.kuali.tools.liquibase.Liquibase;
+
+import liquibase.CompositeFileOpener;
+import liquibase.FileOpener;
+import liquibase.FileSystemFileOpener;
+import liquibase.UIFactory;
+import liquibase.integration.ant.AntFileOpener;
+import liquibase.database.Database;
+import org.apache.tools.ant.BuildException;
+
+import java.io.Writer;
+
+import java.util.Map;
+
+/**
+ * Ant task for migrating a database forward.
+ */
+public class DatabaseUpdateTask extends BaseLiquibaseTask {
+    private boolean dropFirst = false;
+
+    public boolean isDropFirst() {
+        return dropFirst;
+    }
+
+    public void setDropFirst(boolean dropFirst) {
+        this.dropFirst = dropFirst;
+    }
+
+    protected Liquibase createLiquibase() throws Exception {
+        FileOpener antFO = new AntFileOpener(getProject(), classpath);
+        FileOpener fsFO = new FileSystemFileOpener();
+
+        Database database = createDatabaseObject(getDriver(), getUrl(), getUsername(), getPassword(), getDefaultSchemaName(),getDatabaseClass());
+        
+        String changeLogFile = null;
+        if (getChangeLogFile() != null) {
+            changeLogFile = getChangeLogFile().trim();
+        }
+        Liquibase liquibase = new Liquibase(changeLogFile, new CompositeFileOpener(antFO, fsFO), database);
+        liquibase.setCurrentDateTimeFunction(getCurrentDateTimeFunction());
+        for (Map.Entry<String, Object> entry : getChangeLogProperties().entrySet()) {
+            liquibase.setChangeLogParameterValue(entry.getKey(), entry.getValue());
+        }
+
+        return liquibase;
+    }
+
+    public void execute() throws BuildException {
+        if (!shouldRun()) {
+            return;
+        }
+
+        Liquibase liquibase = null;
+        try {
+            liquibase = createLiquibase();
+
+            if (isPromptOnNonLocalDatabase()
+                    && !liquibase.isSafeToRunMigration()
+                    && UIFactory.getInstance().getFacade().promptForNonLocalDatabase(liquibase.getDatabase())) {
+                throw new BuildException("Chose not to run against non-production database");
+            }
+
+            if (isDropFirst()) {
+                liquibase.dropAll();
+            }
+
+            Writer writer = createOutputWriter();
+            if (writer == null) {
+                liquibase.update(getContexts());
+            } else {
+                liquibase.update(getContexts(), writer);
+                writer.flush();
+                writer.close();
+            }
+
+        } catch (Exception e) {
+            throw new BuildException(e);
+        } finally {
+            closeDatabase(liquibase);
+        }
+    }
+}

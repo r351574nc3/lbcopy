@@ -1,0 +1,552 @@
+/*
+ * Copyright 2005-2007 The Kuali Foundation
+ *
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.opensource.org/licenses/ecl2.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.rsmart.kuali.tools.liquibase;
+
+import liquibase.database.Database;
+import liquibase.database.sql.RawSqlStatement;
+import liquibase.database.structure.*;
+import liquibase.database.template.JdbcTemplate;
+import liquibase.diff.DiffComparison;
+import liquibase.diff.DiffStatusListener;
+import liquibase.exception.JDBCException;
+import liquibase.util.StringUtils;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public class Diff {
+
+    private Database baseDatabase;
+    private Database targetDatabase;
+
+    private DatabaseSnapshot baseSnapshot;
+    private DatabaseSnapshot targetSnapshot;
+
+    private Set<DiffStatusListener> statusListeners = new HashSet<DiffStatusListener>();
+
+    private boolean diffTables = true;
+    private boolean diffColumns = true;
+    private boolean diffViews = true;
+    private boolean diffPrimaryKeys = true;
+    private boolean diffUniqueConstraints = true;
+    private boolean diffIndexes = true;
+    private boolean diffForeignKeys = true;
+    private boolean diffSequences = true;
+    private boolean diffData = false;
+
+
+    public Diff(Database baseDatabase, Database targetDatabase) {
+        this.baseDatabase = baseDatabase;
+
+        this.targetDatabase = targetDatabase;
+    }
+
+    public Diff(Database originalDatabase, String schema) throws JDBCException {
+        targetDatabase = null;
+
+        baseDatabase = originalDatabase;
+        baseDatabase.setDefaultSchemaName(schema);
+    }
+
+    public Diff(DatabaseSnapshot baseDatabaseSnapshot, DatabaseSnapshot targetDatabaseSnapshot) {
+        this.baseSnapshot = baseDatabaseSnapshot;
+
+        this.targetSnapshot = targetDatabaseSnapshot;
+    }
+
+    public void addStatusListener(DiffStatusListener listener) {
+        statusListeners.add(listener);
+    }
+
+    public void removeStatusListener(DiffStatusListener listener) {
+        statusListeners.remove(listener);
+    }
+
+    protected void updateUniqueConstraints() throws JDBCException {
+        final Set<UniqueConstraint> returnSet          = baseSnapshot.getUniqueConstraints();
+        final Map<String,UniqueConstraint> constraints = new HashMap<String,UniqueConstraint>();
+        final List<Map> maps = new JdbcTemplate(baseDatabase).queryForList(new RawSqlStatement("SELECT UC.CONSTRAINT_NAME, UCC.TABLE_NAME, UCC.COLUMN_NAME FROM USER_CONSTRAINTS UC, USER_CONS_COLUMNS UCC WHERE UC.CONSTRAINT_NAME=UCC.CONSTRAINT_NAME and UC.CONSTRAINT_NAME NOT LIKE '%$%' AND CONSTRAINT_TYPE='U' ORDER BY UC.CONSTRAINT_NAME"));
+        
+        for (final Map map : maps) {
+            final String name = map.get("CONSTRAINT_NAME").toString();
+            if (!constraints.containsKey(name)) {
+                final UniqueConstraint constraint = new UniqueConstraint();
+                constraint.setName(name);
+                constraint.setTable(new Table((String) map.get("TABLE_NAME")));
+                constraints.put(name, constraint);
+            }
+
+            constraints.get(name).getColumns().add(map.get("COLUMN_NAME").toString());
+        }
+
+        for (final UniqueConstraint constraint : constraints.values()) {
+            removeIndex(constraint.getName());
+            returnSet.add(constraint);
+        }
+    }
+
+    public void updateForeignKeys() throws JDBCException {
+        final Map<String, ForeignKey> fkeys = getForeignKeyNames();
+        
+        for (final ForeignKey fk : baseSnapshot.getForeignKeys()) {
+            fkeys.remove(fk.getName());
+            // Clear out the old columns
+            fk.setForeignKeyColumns(getForeignKeyColumns(fk.getName(), fk.getPrimaryKeyTable().getName()));
+            fk.setPrimaryKeyColumns(getPrimaryKeyColumns(fk.getName(), fk.getForeignKeyTable().getName()));
+        }
+
+        for (final ForeignKey fk : fkeys.values()) {        
+            ResultSet rs = null;
+            try {
+                rs = baseDatabase.getConnection().getMetaData().getImportedKeys(null, baseSnapshot.getSchema(), fk.getForeignKeyTable().getName());
+                
+                while (rs.next()) {
+                    final String fkname = rs.getString("FK_NAME");
+                    if (fkname.equals(fk.getName())) {
+                        fk.setPrimaryKeyTable(baseSnapshot.getTable(rs.getString("PKTABLE_NAME")));
+                    }
+                }
+            }
+            catch (Exception e) {
+                throw new JDBCException(e);
+            }
+            finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            fk.setForeignKeyColumns(getForeignKeyColumns(fk.getName(), fk.getPrimaryKeyTable().getName()));
+            fk.setPrimaryKeyColumns(getPrimaryKeyColumns(fk.getName(), fk.getForeignKeyTable().getName()));
+            baseSnapshot.getForeignKeys().add(fk);
+        }
+    }
+    
+    private Map<String,ForeignKey> getForeignKeyNames() throws JDBCException {
+        final Map<String,ForeignKey> fkeys = new HashMap<String,ForeignKey>();
+        
+        for (final Table table : baseSnapshot.getTables()) {
+
+            ResultSet rs = null;
+            try {
+                rs = baseDatabase.getConnection().getMetaData().getImportedKeys(null, baseSnapshot.getSchema(), table.getName());
+
+                while (rs.next()) {
+                    final ForeignKey fk = new ForeignKey();
+                    final String fkname = rs.getString("FK_NAME");
+                    fk.setForeignKeyTable(table);
+                    fk.setName(fkname);
+
+                    Integer updateRule, deleteRule;
+                    updateRule = rs.getInt("UPDATE_RULE");
+                    if (rs.wasNull())
+                    updateRule = null;
+                    deleteRule = rs.getInt("DELETE_RULE");
+                    if (rs.wasNull()) {
+                        deleteRule = null;
+                    }
+                    fk.setUpdateRule(updateRule);
+                    fk.setDeleteRule(deleteRule);
+                    
+                    if (baseDatabase.supportsInitiallyDeferrableColumns()) {
+                        short deferrablility = rs.getShort("DEFERRABILITY");
+                        if (deferrablility == DatabaseMetaData.importedKeyInitiallyDeferred) {
+                            fk.setDeferrable(Boolean.TRUE);
+                            fk.setInitiallyDeferred(Boolean.TRUE);
+                        } else if (deferrablility == DatabaseMetaData.importedKeyInitiallyImmediate) {
+                            fk.setDeferrable(Boolean.TRUE);
+                            fk.setInitiallyDeferred(Boolean.FALSE);
+                        } else if (deferrablility == DatabaseMetaData.importedKeyNotDeferrable) {
+                            fk.setDeferrable(Boolean.FALSE);
+                            fk.setInitiallyDeferred(Boolean.FALSE);
+                        }
+                    }
+
+                    if (!fkeys.containsKey(fkname)) {
+                        fkeys.put(fkname, fk);
+                    }
+                }
+            }
+            catch (Exception e) {
+                throw new JDBCException(e);
+            }
+            finally {
+                try {
+                    if (rs != null) {
+                        rs.close();
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return fkeys;
+    }
+
+    private void removeIndex(String name) {
+        for (final Index index : baseSnapshot.getIndexes()) {
+            if (index.getName().equals(name)) {
+                baseSnapshot.getIndexes().remove(index);
+                return;
+            }
+        }
+    }
+
+    private String getForeignKeyColumns(final String fkName, final String tableName) throws JDBCException {
+        return getKeyColumns(fkName, tableName, false);
+    }
+
+    private String getPrimaryKeyColumns(final String fkName, final String tableName) throws JDBCException {
+        return getKeyColumns(fkName, tableName, true);
+    }
+
+    private String getKeyColumns(final String fkName, final String tableName, final boolean primary) throws JDBCException {
+        final StringBuilder retval = new StringBuilder();
+        final List<String> keys = new ArrayList<String>();
+        String columnFieldName = "FKCOLUMN_NAME";
+        
+        if (primary) {
+            columnFieldName = "PKCOLUMN_NAME";
+        }
+
+        ResultSet rs = null;
+        try {
+            if (primary) {
+                rs = baseDatabase.getConnection().getMetaData().getImportedKeys(null, baseSnapshot.getSchema(), tableName);
+            }
+            else {
+                rs = baseDatabase.getConnection().getMetaData().getExportedKeys(null, baseSnapshot.getSchema(), tableName);
+            }
+            
+            while (rs.next()) {
+                if (fkName.equalsIgnoreCase(rs.getString("FK_NAME"))) {
+                    keys.add(rs.getInt("KEY_SEQ") - 1, rs.getString(columnFieldName));
+                }
+            }
+        }
+        catch (Exception e) {
+            throw new JDBCException(e);
+        }
+        finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        for (final String key : keys) {
+            retval.append(key).append(",");
+        }
+        
+        retval.setLength(retval.length() - 1);
+
+        return retval.toString();
+    }
+
+    public DiffResult compare() throws JDBCException {
+        if (baseSnapshot == null) {
+            baseSnapshot = baseDatabase.createDatabaseSnapshot(null, statusListeners);
+        }
+
+        if (shouldDiffUniqueConstraints()) {
+            updateUniqueConstraints();
+        }
+        if (shouldDiffForeignKeys()) {
+            updateForeignKeys();
+        }
+
+        if (targetSnapshot == null) {
+            if (targetDatabase == null) {
+                targetSnapshot = new UnsupportedDatabaseSnapshot();
+            } else {
+                targetSnapshot = targetDatabase.createDatabaseSnapshot(null, statusListeners);
+            }
+        }
+
+        DiffResult diffResult = new DiffResult(baseSnapshot, targetSnapshot);
+        checkVersionInfo(diffResult);
+        if (shouldDiffTables()) {
+            checkTables(diffResult);
+        }
+        if (shouldDiffViews()) {
+            checkViews(diffResult);
+        }
+        if (shouldDiffColumns()) {
+            checkColumns(diffResult);
+        }
+        if (shouldDiffForeignKeys()) {
+            checkForeignKeys(diffResult);
+        }
+        if (shouldDiffPrimaryKeys()) {
+            checkPrimaryKeys(diffResult);
+        }
+        if (shouldDiffUniqueConstraints()) {
+            checkUniqueConstraints(diffResult);
+        }
+        if (shouldDiffIndexes()) {
+            checkIndexes(diffResult);
+        }
+        if (shouldDiffSequences()) {
+            checkSequences(diffResult);
+        }
+        diffResult.setDiffData(shouldDiffData());
+
+        return diffResult;
+    }
+
+
+    public void setDiffTypes(String diffTypes) {
+        if (StringUtils.trimToNull(diffTypes) != null) {
+            Set<String> types = new HashSet<String>(Arrays.asList(diffTypes.toLowerCase().split("\\s*,\\s*")));
+            diffTables = types.contains("tables");
+            diffColumns = types.contains("columns");
+            diffViews = types.contains("views");
+            diffPrimaryKeys = types.contains("primarykeys");
+            diffUniqueConstraints = types.contains("uniqueconstraints");
+            diffIndexes = types.contains("indexes");
+            diffForeignKeys = types.contains("foreignkeys");
+            diffSequences = types.contains("sequences");
+            diffData = types.contains("data");
+        }
+    }
+
+    public boolean shouldDiffTables() {
+        return diffTables;
+    }
+
+    public void setDiffTables(boolean diffTables) {
+        this.diffTables = diffTables;
+    }
+
+    public boolean shouldDiffColumns() {
+        return diffColumns;
+    }
+
+    public void setDiffColumns(boolean diffColumns) {
+        this.diffColumns = diffColumns;
+    }
+
+    public boolean shouldDiffViews() {
+        return diffViews;
+    }
+
+    public void setDiffViews(boolean diffViews) {
+        this.diffViews = diffViews;
+    }
+
+
+    public boolean shouldDiffPrimaryKeys() {
+        return diffPrimaryKeys;
+    }
+
+    public void setDiffPrimaryKeys(boolean diffPrimaryKeys) {
+        this.diffPrimaryKeys = diffPrimaryKeys;
+    }
+
+    public boolean shouldDiffIndexes() {
+        return diffIndexes;
+    }
+
+    public void setDiffIndexes(boolean diffIndexes) {
+        this.diffIndexes = diffIndexes;
+    }
+
+    public boolean shouldDiffForeignKeys() {
+        return diffForeignKeys;
+    }
+
+    public void setDiffForeignKeys(boolean diffForeignKeys) {
+        this.diffForeignKeys = diffForeignKeys;
+    }
+
+    public boolean shouldDiffSequences() {
+        return diffSequences;
+    }
+
+    public void setDiffSequences(boolean diffSequences) {
+        this.diffSequences = diffSequences;
+    }
+
+    public boolean shouldDiffData() {
+        return diffData;
+    }
+
+    public void setDiffData(boolean diffData) {
+        this.diffData = diffData;
+    }
+    
+    public boolean shouldDiffUniqueConstraints () {
+      return this.diffUniqueConstraints;
+    }
+    
+    public void setDiffUniqueConstraints (boolean diffUniqueConstraints) {
+      this.diffUniqueConstraints = diffUniqueConstraints;
+    }
+
+    private void checkVersionInfo(DiffResult diffResult) throws JDBCException {
+
+        if (targetDatabase != null) {
+            diffResult.setProductName(new DiffComparison(baseDatabase.getDatabaseProductName(), targetDatabase.getDatabaseProductName()));
+            diffResult.setProductVersion(new DiffComparison(baseDatabase.getDatabaseProductVersion(), targetDatabase.getDatabaseProductVersion()));
+        }
+
+    }
+
+    private void checkTables(DiffResult diffResult) {
+        for (Table baseTable : baseSnapshot.getTables()) {
+            if (!targetSnapshot.getTables().contains(baseTable)) {
+                diffResult.addMissingTable(baseTable);
+            }
+        }
+
+        for (Table targetTable : targetSnapshot.getTables()) {
+            if (!baseSnapshot.getTables().contains(targetTable)) {
+                diffResult.addUnexpectedTable(targetTable);
+            }
+        }
+    }
+
+    private void checkViews(DiffResult diffResult) {
+        for (View baseView : baseSnapshot.getViews()) {
+            if (!targetSnapshot.getViews().contains(baseView)) {
+                diffResult.addMissingView(baseView);
+            }
+        }
+
+        for (View targetView : targetSnapshot.getViews()) {
+            if (!baseSnapshot.getViews().contains(targetView)) {
+                diffResult.addUnexpectedView(targetView);
+            }
+        }
+    }
+
+    private void checkColumns(DiffResult diffResult) {
+        for (Column baseColumn : baseSnapshot.getColumns()) {
+            if (!targetSnapshot.getColumns().contains(baseColumn)
+                    && (baseColumn.getTable() == null || !diffResult.getMissingTables().contains(baseColumn.getTable()))
+                    && (baseColumn.getView() == null || !diffResult.getMissingViews().contains(baseColumn.getView()))
+                    ) {
+                diffResult.addMissingColumn(baseColumn);
+            }
+        }
+
+        for (Column targetColumn : targetSnapshot.getColumns()) {
+            if (!baseSnapshot.getColumns().contains(targetColumn)
+                    && (targetColumn.getTable() == null || !diffResult.getUnexpectedTables().contains(targetColumn.getTable()))
+                    && (targetColumn.getView() == null || !diffResult.getUnexpectedViews().contains(targetColumn.getView()))
+                    ) {
+                diffResult.addUnexpectedColumn(targetColumn);
+            } else
+            if (targetColumn.getTable() != null && !diffResult.getUnexpectedTables().contains(targetColumn.getTable())) {
+                Column baseColumn = baseSnapshot.getColumn(targetColumn.getTable().getName(), targetColumn.getName());
+
+                if (baseColumn == null || targetColumn.isDifferent(baseColumn)) {
+                    diffResult.addChangedColumn(targetColumn);
+                }
+            }
+        }
+    }
+
+    private void checkForeignKeys(DiffResult diffResult) {
+        for (ForeignKey baseFK : baseSnapshot.getForeignKeys()) {
+            if (!targetSnapshot.getForeignKeys().contains(baseFK)) {
+                diffResult.addMissingForeignKey(baseFK);
+            }
+        }
+
+        for (ForeignKey targetFK : targetSnapshot.getForeignKeys()) {
+            if (!baseSnapshot.getForeignKeys().contains(targetFK)) {
+                diffResult.addUnexpectedForeignKey(targetFK);
+            }
+        }
+    }
+
+    private void checkUniqueConstraints (DiffResult diffResult) {
+      for (UniqueConstraint baseIndex : baseSnapshot.getUniqueConstraints()) {
+          if (!targetSnapshot.getUniqueConstraints().contains(baseIndex)) {
+              diffResult.addMissingUniqueConstraint(baseIndex);
+          }
+      }
+
+      for (UniqueConstraint targetIndex : targetSnapshot.getUniqueConstraints()) {
+        if (!baseSnapshot.getUniqueConstraints().contains(targetIndex)) {
+          diffResult.addUnexpectedUniqueConstraint(targetIndex);
+        }
+      }
+    }
+    
+    
+    private void checkIndexes(DiffResult diffResult) {
+        for (Index baseIndex : baseSnapshot.getIndexes()) {
+            if (!targetSnapshot.getIndexes().contains(baseIndex)) {
+                diffResult.addMissingIndex(baseIndex);
+            }
+        }
+
+        for (Index targetIndex : targetSnapshot.getIndexes()) {
+            if (!baseSnapshot.getIndexes().contains(targetIndex)) {
+                diffResult.addUnexpectedIndex(targetIndex);
+            }
+        }
+    }
+
+    private void checkPrimaryKeys(DiffResult diffResult) {
+        for (PrimaryKey basePrimaryKey : baseSnapshot.getPrimaryKeys()) {
+            if (!targetSnapshot.getPrimaryKeys().contains(basePrimaryKey)) {
+                diffResult.addMissingPrimaryKey(basePrimaryKey);
+            }
+        }
+
+        for (PrimaryKey targetPrimaryKey : targetSnapshot.getPrimaryKeys()) {
+            if (!baseSnapshot.getPrimaryKeys().contains(targetPrimaryKey)) {
+                diffResult.addUnexpectedPrimaryKey(targetPrimaryKey);
+            }
+        }
+    }
+
+    private void checkSequences(DiffResult diffResult) {
+        for (Sequence baseSequence : baseSnapshot.getSequences()) {
+            if (!targetSnapshot.getSequences().contains(baseSequence)) {
+                diffResult.addMissingSequence(baseSequence);
+            }
+        }
+
+        for (Sequence targetSequence : targetSnapshot.getSequences()) {
+            if (!baseSnapshot.getSequences().contains(targetSequence)) {
+                diffResult.addUnexpectedSequence(targetSequence);
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<antlib>
+   <taskdef name="rdbmsConfig"  classname="com.rsmart.kuali.tools.ant.tasks.RdbmsConfig" />
+   <taskdef name="migrateData"  classname="com.rsmart.kuali.tools.ant.tasks.MigrateData" />
+   <taskdef name="dropAllDatabaseObjects" classname="com.rsmart.kuali.tools.ant.tasks.DropAllTask" />
+   <taskdef name="generateChangeLog"  classname="com.rsmart.kuali.tools.ant.tasks.GenerateChangeLog" />
+   <taskdef name="updateDatabase"  classname="com.rsmart.kuali.tools.ant.tasks.DatabaseUpdateTask" />
+   <taskdef name="liquibaseSetup"  classname="com.rsmart.kuali.tools.ant.tasks.LiquibaseSetup" />
+</antlib>
+
