@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+    <changeSet author="leo (generated)" id="1315183730478-1">
+        <createSequence schemaName="TEM" sequenceName="a21_lbr_bld_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-2">
+        <createSequence schemaName="TEM" sequenceName="ap_crdt_mem_itm_use_tax_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-3">
+        <createSequence schemaName="TEM" sequenceName="ap_crdt_memo_acct_chg_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-4">
+        <createSequence schemaName="TEM" sequenceName="ap_crdt_memo_acct_hist_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-5">
+        <createSequence schemaName="TEM" sequenceName="ap_elctrnc_inv_map_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-6">
+        <createSequence schemaName="TEM" sequenceName="ap_inv_rjt_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-7">
+        <createSequence schemaName="TEM" sequenceName="ap_neg_pmt_rqst_aprvl_lmt_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-8">
+        <createSequence schemaName="TEM" sequenceName="ap_pmt_rqst_acct_chg_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-9">
+        <createSequence schemaName="TEM" sequenceName="ap_pmt_rqst_acct_hist_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-10">
+        <createSequence schemaName="TEM" sequenceName="ap_pmt_rqst_itm_use_tax_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-11">
+        <createSequence schemaName="TEM" sequenceName="ap_pur_doc_lnk_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-12">
+        <createSequence schemaName="TEM" sequenceName="ap_sum_acct_t_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-13">
+        <createSequence schemaName="TEM" sequenceName="cb_actn_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-14">
+        <createSequence schemaName="TEM" sequenceName="cb_gl_acct_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-15">
+        <createSequence schemaName="TEM" sequenceName="cg_agency_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-16">
+        <createSequence schemaName="TEM" sequenceName="cg_prpsl_close_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-17">
+        <createSequence schemaName="TEM" sequenceName="cg_subcnr_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-18">
+        <createSequence schemaName="TEM" sequenceName="cgprpsl_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-19">
+        <createSequence schemaName="TEM" sequenceName="cptlast_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-20">
+        <createSequence schemaName="TEM" sequenceName="crdt_memo_acct_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-21">
+        <createSequence schemaName="TEM" sequenceName="crdt_memo_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-22">
+        <createSequence schemaName="TEM" sequenceName="crdt_memo_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-23">
+        <createSequence schemaName="TEM" sequenceName="crdt_memo_stat_hist_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-24">
+        <createSequence schemaName="TEM" sequenceName="cust_addr_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-25">
+        <createSequence schemaName="TEM" sequenceName="cust_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-26">
+        <createSequence schemaName="TEM" sequenceName="dirty_cache_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-27">
+        <createSequence schemaName="TEM" sequenceName="dv_payee_id_nbr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-28">
+        <createSequence schemaName="TEM" sequenceName="en_service_def_interface_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-29">
+        <createSequence schemaName="TEM" sequenceName="end_aci_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-30">
+        <createSequence schemaName="TEM" sequenceName="end_cash_sweep_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-31">
+        <createSequence schemaName="TEM" sequenceName="end_kemid_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-32">
+        <createSequence schemaName="TEM" sequenceName="end_rec_csh_xfr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-33">
+        <createSequence schemaName="TEM" sequenceName="end_tklr_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-34">
+        <createSequence schemaName="TEM" sequenceName="fp_cashier_itm_in_proc_t_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-35">
+        <createSequence schemaName="TEM" sequenceName="fp_prcrmnt_card_trn_t_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-36">
+        <createSequence schemaName="TEM" sequenceName="gl_origin_entry_grp_t_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-37">
+        <createSequence schemaName="TEM" sequenceName="gl_origin_entry_t_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-38">
+        <createSequence schemaName="TEM" sequenceName="inv_load_sum_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-39">
+        <createSequence schemaName="TEM" sequenceName="inv_rjt_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-40">
+        <createSequence schemaName="TEM" sequenceName="inv_rjt_reas_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-41">
+        <createSequence schemaName="TEM" sequenceName="kren_chnl_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-42">
+        <createSequence schemaName="TEM" sequenceName="kren_chnl_subscrp_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-43">
+        <createSequence schemaName="TEM" sequenceName="kren_cntnt_typ_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-44">
+        <createSequence schemaName="TEM" sequenceName="kren_msg_deliv_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-45">
+        <createSequence schemaName="TEM" sequenceName="kren_msg_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-46">
+        <createSequence schemaName="TEM" sequenceName="kren_ntfctn_msg_deliv_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-47">
+        <createSequence schemaName="TEM" sequenceName="kren_ntfctn_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-48">
+        <createSequence schemaName="TEM" sequenceName="kren_prio_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-49">
+        <createSequence schemaName="TEM" sequenceName="kren_prodcr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-50">
+        <createSequence schemaName="TEM" sequenceName="kren_recip_deliv_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-51">
+        <createSequence schemaName="TEM" sequenceName="kren_recip_list_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-52">
+        <createSequence schemaName="TEM" sequenceName="kren_recip_pref_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-53">
+        <createSequence schemaName="TEM" sequenceName="kren_recip_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-54">
+        <createSequence schemaName="TEM" sequenceName="kren_rvwer_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-55">
+        <createSequence schemaName="TEM" sequenceName="kren_sndr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-56">
+        <createSequence schemaName="TEM" sequenceName="krew_actn_itm_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-57">
+        <createSequence schemaName="TEM" sequenceName="krew_actn_list_optn_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-58">
+        <createSequence schemaName="TEM" sequenceName="krew_actn_rqst_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-59">
+        <createSequence schemaName="TEM" sequenceName="krew_actn_tkn_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-60">
+        <createSequence schemaName="TEM" sequenceName="krew_doc_hdr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-61">
+        <createSequence schemaName="TEM" sequenceName="krew_doc_lnk_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-62">
+        <createSequence schemaName="TEM" sequenceName="krew_doc_nte_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-63">
+        <createSequence schemaName="TEM" sequenceName="krew_doc_typ_attr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-64">
+        <createSequence schemaName="TEM" sequenceName="krew_edl_fld_dmp_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-65">
+        <createSequence schemaName="TEM" sequenceName="krew_edl_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-66">
+        <createSequence schemaName="TEM" sequenceName="krew_hlp_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-67">
+        <createSequence schemaName="TEM" sequenceName="krew_out_box_itm_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-68">
+        <createSequence schemaName="TEM" sequenceName="krew_ria_doctype_map_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-69">
+        <createSequence schemaName="TEM" sequenceName="krew_rsp_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-70">
+        <createSequence schemaName="TEM" sequenceName="krew_rte_node_cfg_parm_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-71">
+        <createSequence schemaName="TEM" sequenceName="krew_rte_node_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-72">
+        <createSequence schemaName="TEM" sequenceName="krew_rte_tmpl_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-73">
+        <createSequence schemaName="TEM" sequenceName="krew_rule_expr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-74">
+        <createSequence schemaName="TEM" sequenceName="krew_rule_tmpl_optn_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-75">
+        <createSequence schemaName="TEM" sequenceName="krew_srch_attr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-76">
+        <createSequence schemaName="TEM" sequenceName="krew_usr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-77">
+        <createSequence schemaName="TEM" sequenceName="krim_attr_data_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-78">
+        <createSequence schemaName="TEM" sequenceName="krim_attr_defn_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-79">
+        <createSequence schemaName="TEM" sequenceName="krim_dlgn_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-80">
+        <createSequence schemaName="TEM" sequenceName="krim_dlgn_mbr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-81">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_addr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-82">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_afltn_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-83">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_ctznshp_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-84">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_email_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-85">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_emp_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-86">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_ethnic_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-87">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_ext_id_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-88">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-89">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_nm_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-90">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_phone_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-91">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_residency_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-92">
+        <createSequence schemaName="TEM" sequenceName="krim_entity_visa_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-93">
+        <createSequence schemaName="TEM" sequenceName="krim_grp_attr_data_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-94">
+        <createSequence schemaName="TEM" sequenceName="krim_grp_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-95">
+        <createSequence schemaName="TEM" sequenceName="krim_grp_mbr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-96">
+        <createSequence schemaName="TEM" sequenceName="krim_perm_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-97">
+        <createSequence schemaName="TEM" sequenceName="krim_perm_rqrd_attr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-98">
+        <createSequence schemaName="TEM" sequenceName="krim_perm_tmpl_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-99">
+        <createSequence schemaName="TEM" sequenceName="krim_prncpl_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-100">
+        <createSequence schemaName="TEM" sequenceName="krim_role_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-101">
+        <createSequence schemaName="TEM" sequenceName="krim_role_mbr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-102">
+        <createSequence schemaName="TEM" sequenceName="krim_role_perm_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-103">
+        <createSequence schemaName="TEM" sequenceName="krim_role_rsp_actn_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-104">
+        <createSequence schemaName="TEM" sequenceName="krim_role_rsp_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-105">
+        <createSequence schemaName="TEM" sequenceName="krim_rsp_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-106">
+        <createSequence schemaName="TEM" sequenceName="krim_rsp_rqrd_attr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-107">
+        <createSequence schemaName="TEM" sequenceName="krim_rsp_tmpl_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-108">
+        <createSequence schemaName="TEM" sequenceName="krim_typ_attr_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-109">
+        <createSequence schemaName="TEM" sequenceName="krim_typ_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-110">
+        <createSequence schemaName="TEM" sequenceName="krns_doc_typ_attr_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-111">
+        <createSequence schemaName="TEM" sequenceName="krns_lock_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-112">
+        <createSequence schemaName="TEM" sequenceName="krns_lookup_rslt_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-113">
+        <createSequence schemaName="TEM" sequenceName="krns_maint_lock_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-114">
+        <createSequence schemaName="TEM" sequenceName="krns_nte_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-115">
+        <createSequence schemaName="TEM" sequenceName="krsb_bam_parm_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-116">
+        <createSequence schemaName="TEM" sequenceName="krsb_bam_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-117">
+        <createSequence schemaName="TEM" sequenceName="krsb_flt_svc_def_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-118">
+        <createSequence schemaName="TEM" sequenceName="krsb_msg_que_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-119">
+        <createSequence schemaName="TEM" sequenceName="krsb_svc_def_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-120">
+        <createSequence schemaName="TEM" sequenceName="origin_entry_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-121">
+        <createSequence schemaName="TEM" sequenceName="pdp_ach_acct_gnrtd_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-122">
+        <createSequence schemaName="TEM" sequenceName="pdp_bnk_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-123">
+        <createSequence schemaName="TEM" sequenceName="pdp_cust_bnk_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-124">
+        <createSequence schemaName="TEM" sequenceName="pdp_cust_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-125">
+        <createSequence schemaName="TEM" sequenceName="pdp_doc_typ_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-126">
+        <createSequence schemaName="TEM" sequenceName="pdp_gl_pending_entry_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-127">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_acct_dtl_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-128">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_acct_hist_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-129">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_dtl_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-130">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_fil_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-131">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_grp_hist_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-132">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_grp_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-133">
+        <createSequence schemaName="TEM" sequenceName="pdp_pmt_nte_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-134">
+        <createSequence schemaName="TEM" sequenceName="pdp_proc_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-135">
+        <createSequence schemaName="TEM" sequenceName="pdp_proc_sum_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-136">
+        <createSequence schemaName="TEM" sequenceName="pmt_chg_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-137">
+        <createSequence schemaName="TEM" sequenceName="pmt_rqst_acct_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-138">
+        <createSequence schemaName="TEM" sequenceName="pmt_rqst_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-139">
+        <createSequence schemaName="TEM" sequenceName="pmt_rqst_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-140">
+        <createSequence schemaName="TEM" sequenceName="pmt_rqst_stat_hist_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-141">
+        <createSequence schemaName="TEM" sequenceName="po_acct_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-142">
+        <createSequence schemaName="TEM" sequenceName="po_contr_lang_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-143">
+        <createSequence schemaName="TEM" sequenceName="po_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-144">
+        <createSequence schemaName="TEM" sequenceName="po_itm_cptl_ast_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-145">
+        <createSequence schemaName="TEM" sequenceName="po_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-146">
+        <createSequence schemaName="TEM" sequenceName="po_qt_lang_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-147">
+        <createSequence schemaName="TEM" sequenceName="po_qt_lst_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-148">
+        <createSequence schemaName="TEM" sequenceName="po_rstrc_mtrl_stathst_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-149">
+        <createSequence schemaName="TEM" sequenceName="po_stat_hist_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-150">
+        <createSequence schemaName="TEM" sequenceName="po_vndr_qt_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-151">
+        <createSequence schemaName="TEM" sequenceName="po_vndr_stpltn_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-152">
+        <createSequence schemaName="TEM" sequenceName="pur_po_cptl_ast_itm_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-153">
+        <createSequence schemaName="TEM" sequenceName="pur_po_cptl_ast_loc_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-154">
+        <createSequence schemaName="TEM" sequenceName="pur_po_cptl_ast_sys_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-155">
+        <createSequence schemaName="TEM" sequenceName="pur_po_itm_use_tax_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-156">
+        <createSequence schemaName="TEM" sequenceName="pur_rcvng_addr_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-157">
+        <createSequence schemaName="TEM" sequenceName="pur_reqs_cptl_ast_itm_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-158">
+        <createSequence schemaName="TEM" sequenceName="pur_reqs_cptl_ast_loc_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-159">
+        <createSequence schemaName="TEM" sequenceName="pur_reqs_cptl_ast_sys_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-160">
+        <createSequence schemaName="TEM" sequenceName="pur_reqs_itm_use_tax_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-161">
+        <createSequence schemaName="TEM" sequenceName="pur_snstv_dta_asgn_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-162">
+        <createSequence schemaName="TEM" sequenceName="pur_thrshld_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-163">
+        <createSequence schemaName="TEM" sequenceName="rcvng_cor_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-164">
+        <createSequence schemaName="TEM" sequenceName="rcvng_ln_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-165">
+        <createSequence schemaName="TEM" sequenceName="reqs_acct_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-166">
+        <createSequence schemaName="TEM" sequenceName="reqs_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-167">
+        <createSequence schemaName="TEM" sequenceName="reqs_itm_cptl_ast_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-168">
+        <createSequence schemaName="TEM" sequenceName="reqs_itm_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-169">
+        <createSequence schemaName="TEM" sequenceName="reqs_stat_hist_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-170">
+        <createSequence schemaName="TEM" sequenceName="shpmnt_rcvng_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-171">
+        <createSequence schemaName="TEM" sequenceName="tem_auth_othr_exp_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-172">
+        <createSequence schemaName="TEM" sequenceName="tem_em_cont_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-173">
+        <createSequence schemaName="TEM" sequenceName="tem_grp_trvlr_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-174">
+        <createSequence schemaName="TEM" sequenceName="tem_mileage_rt_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-175">
+        <createSequence schemaName="TEM" sequenceName="tem_mileage_rt_obj_cd_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-176">
+        <createSequence schemaName="TEM" sequenceName="tem_other_trvl_exp_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-177">
+        <createSequence schemaName="TEM" sequenceName="tem_per_diem_exp_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-178">
+        <createSequence schemaName="TEM" sequenceName="tem_per_diem_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-179">
+        <createSequence schemaName="TEM" sequenceName="tem_profile_arranger_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-180">
+        <createSequence schemaName="TEM" sequenceName="tem_profile_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-181">
+        <createSequence schemaName="TEM" sequenceName="tem_reimb_other_exp_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-182">
+        <createSequence schemaName="TEM" sequenceName="tem_spcl_crcmsncs_q_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-183">
+        <createSequence schemaName="TEM" sequenceName="tem_spcl_crcmsncs_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-184">
+        <createSequence schemaName="TEM" sequenceName="tem_traveler_dtl_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-185">
+        <createSequence schemaName="TEM" sequenceName="tem_traveler_prof_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-186">
+        <createSequence schemaName="TEM" sequenceName="tem_trip_dtl_est_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-187">
+        <createSequence schemaName="TEM" sequenceName="tem_trvl_adv_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-188">
+        <createSequence schemaName="TEM" sequenceName="trv_fo_id_s"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-189">
+        <createSequence schemaName="TEM" sequenceName="trvl_id_seq"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-190">
+        <createSequence schemaName="TEM" sequenceName="vndr_addr_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-191">
+        <createSequence schemaName="TEM" sequenceName="vndr_cntct_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-192">
+        <createSequence schemaName="TEM" sequenceName="vndr_cntct_phn_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-193">
+        <createSequence schemaName="TEM" sequenceName="vndr_contr_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-194">
+        <createSequence schemaName="TEM" sequenceName="vndr_cust_nbr_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-195">
+        <createSequence schemaName="TEM" sequenceName="vndr_dflt_addr_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-196">
+        <createSequence schemaName="TEM" sequenceName="vndr_hdr_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-197">
+        <createSequence schemaName="TEM" sequenceName="vndr_phn_gnrtd_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-198">
+        <createSequence schemaName="TEM" sequenceName="vndr_stpltn_id"/>
+    </changeSet>
+    <changeSet author="leo (generated)" id="1315183730478-199">
+        <createSequence schemaName="TEM" sequenceName="vndr_tax_chg_gnrtd_id"/>
+    </changeSet>
+</databaseChangeLog>
