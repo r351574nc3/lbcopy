@@ -15,6 +15,8 @@ import liquibase.statement.UniqueConstraint;
 import liquibase.statement.core.CreateTableStatement;
 import liquibase.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -62,21 +64,21 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 Object defaultValue = statement.getDefaultValue(column);
                 if (statement.getColumnTypes().get(column).toString().startsWith("DECIMAL")) {
                     int[] bounds = parseBounds(statement.getColumnTypes().get(column).toString());
-                    int factor = 1;
-                    for (int x = 0; x < bounds[1]; x++) factor *= 10;
-                    int real = bounds[0] / factor;
-                    Double parsedValue = 0d;
+                    BigDecimal parsedValue = new BigDecimal(defaultValue.toString());
                     
-                    try {
-                        parsedValue = NumberFormat.getInstance(Locale.US).parse(defaultValue.toString()).doubleValue();
-                    }
-                    catch (Exception e) {
-                    }
+                    StringBuilder max = new StringBuilder();
+                    for (int i = 0; i < bounds[0] - bounds[1]; i++) max.append("9");
                     
-                    while (parsedValue > real) {
-                        parsedValue = parsedValue - new Double(1.00/factor);
+                    if (bounds[1] > 0) {
+                        max.append(".");
                     }
-                    defaultValue = parsedValue;                    
+                    for (int i = 0; i < bounds[1]; i++) max.append("9");
+                    
+                    System.out.println("comparing " + parsedValue + " to " + max);
+                    if (parsedValue.compareTo(new BigDecimal(max.toString())) > 0) {
+                        defaultValue = max;
+                    }
+                    System.out.println("default is now " + defaultValue);
                 }
                 if (database instanceof MSSQLDatabase) {
                     buffer.append(" CONSTRAINT ").append(((MSSQLDatabase) database).generateDefaultConstraintName(statement.getTableName(), column));
