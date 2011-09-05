@@ -199,7 +199,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
                                           hsqldbConfig.getUrl(),
                                           hsqldbConfig.getUsername(),
                                           hsqldbConfig.getPassword(),
-                                          null, "liquibase.database.HsqlDatabase");
+                                          null, "liquibase.database.core.HsqlDatabase");
             export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);

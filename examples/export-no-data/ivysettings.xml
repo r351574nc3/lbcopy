@@ -1,13 +1,18 @@
 <?xml version="1.0"?>
-<settings defaultResolver="local-maven2">
-  <property name="local-maven2-pattern"
-
-value="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]" 
-override="false" /> 
+<settings defaultResolver="chain">
+  <property name="local-maven2-repo" value="${user.home}/.m2/repository/" />
+  <property name="local-maven2-pattern" value="[organisation]/[module]/[revision]/[module]-[revision].[ext]" override="false" /> 
   <resolvers>
-    <filesystem name="local-maven2" m2compatible="true">
-      <ivy pattern="${local-maven2-pattern}"/>
-      <artifact pattern="${local-maven2-pattern}"/>
-    </filesystem>
+    <chain name="chain">
+      <filesystem name="local-maven2" m2compatible="true">
+        <ivy pattern="${local-maven2-repo}${local-maven2-pattern}"/>
+        <artifact pattern="${local-maven2-repo}${local-maven2-pattern}"/>
+      </filesystem>
+
+      <url name="kuali-nexus" m2compatible="true">
+        <ivy pattern="http://nexus.kuali.org/content/groups/public/${local-maven2-pattern}" />
+        <artifact pattern="http://nexus.kuali.org/content/groups/public/${local-maven2-pattern}" />
+      </url>
+    </chain>
   </resolvers>
 </settings>
