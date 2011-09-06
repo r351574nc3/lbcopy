@@ -211,6 +211,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
 
             log("Loading Schema");
             liquibase.update(getContexts());
+            log("Finished Loading the Schema");
 
         } 
         catch (Exception e) {

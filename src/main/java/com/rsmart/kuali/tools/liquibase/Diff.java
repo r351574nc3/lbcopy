@@ -443,4 +443,5 @@ public class Diff {
 
 		uniqueConstraints.removeAll( constraintsToRemove );
 	}
+
 }
