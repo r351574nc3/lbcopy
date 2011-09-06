@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Iterator;
 
 public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTableGenerator {
-
+    
     public ValidationErrors validate(CreateTableStatement createTableStatement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         ValidationErrors validationErrors = new ValidationErrors();
         validationErrors.checkRequiredField("tableName", createTableStatement.getTableName());
@@ -33,7 +33,8 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
     }
 
     public Sql[] generateSql(CreateTableStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
-            StringBuffer buffer = new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
+        
         buffer.append("CREATE TABLE ").append(database.escapeTableName(statement.getSchemaName(), statement.getTableName())).append(" ");
         buffer.append("(");
         Iterator<String> columnIterator = statement.getColumns().iterator();
@@ -74,11 +75,9 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                     }
                     for (int i = 0; i < bounds[1]; i++) max.append("9");
                     
-                    System.out.println("comparing " + parsedValue + " to " + max);
                     if (parsedValue.compareTo(new BigDecimal(max.toString())) > 0) {
                         defaultValue = max;
                     }
-                    System.out.println("default is now " + defaultValue);
                 }
                 if (database instanceof MSSQLDatabase) {
                     buffer.append(" CONSTRAINT ").append(((MSSQLDatabase) database).generateDefaultConstraintName(statement.getTableName(), column));
