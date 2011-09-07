@@ -60,7 +60,6 @@ public class Diff {
 	}
 
 	public DiffResult compare() throws DatabaseException {
-        System.out.println("Creating snapshots");
 		if (referenceSnapshot == null) {
 			referenceSnapshot = DatabaseSnapshotGeneratorFactory.getInstance()
 					.createSnapshot(referenceDatabase, null, statusListeners);

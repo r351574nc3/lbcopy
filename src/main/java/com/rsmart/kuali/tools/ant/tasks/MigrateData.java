@@ -110,7 +110,7 @@ public class MigrateData extends Task {
         observable.addObserver(progressObserver);
 
         for (final String tableName : tableData.keySet()) {
-            if (!(tableName.startsWith(LIQUIBASE_TABLE) && tableData.get(tableName) > 0)) {
+            if (!(tableName.toUpperCase().startsWith(LIQUIBASE_TABLE) && tableData.get(tableName) > 0)) {
                 if (threadCount < MAX_THREADS) {
                     new Thread(new Runnable() {
                             public void run() {
@@ -121,6 +121,7 @@ public class MigrateData extends Task {
                         }).start();
                 }
                 else {
+                    final Map<String,Integer> columns = new HashMap<String, Integer>();
                     migrate(source, target, tableName, observable);
                 }
             }
@@ -133,9 +134,14 @@ public class MigrateData extends Task {
                          final ProgressObservable observable) {
         final Connection sourceDb = openConnection(source);
         final Connection targetDb = openConnection(target);
-        final Map<String, Integer> columns = getColumnMap(sourceDb, targetDb, tableName);
+        source.setConnection(sourceDb);
+        target.setConnection(targetDb);
+        final Map<String, Integer> columns = getColumnMap(source, target, tableName);
+        source.setConnection(null);
+        target.setConnection(null);
 
         if (columns.size() < 1) {
+            log("Columns are empty");
             return;
         }
 
@@ -162,7 +168,11 @@ public class MigrateData extends Task {
                             handleLob(toStatement, value, i);
                         }
                         catch (Exception e) {
-                            System.out.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                            System.err.println(String.format("Error processing %s.%s %s", tableName, columnName, columns.get(columnName)));
+                            if (Clob.class.isAssignableFrom(value.getClass())) {
+                                System.err.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                            }
+                            e.printStackTrace();
                         }
                     }
                     else {
@@ -236,10 +246,11 @@ public class MigrateData extends Task {
                     e.printStackTrace();
                 }
             }
+            columns.clear();
         }
     }
 
-    private void handleLob(final PreparedStatement toStatement, final Object value, final int i) throws SQLException {
+    protected void handleLob(final PreparedStatement toStatement, final Object value, final int i) throws SQLException {
         if (Clob.class.isAssignableFrom(value.getClass())) {
             toStatement.setAsciiStream(i, ((Clob) value).getAsciiStream(), ((Clob) value).length());
         }
@@ -251,7 +262,7 @@ public class MigrateData extends Task {
         } 
     }
 
-    private PreparedStatement prepareStatement(Connection conn, String tableName, Map<String, Integer> columns) {
+    protected PreparedStatement prepareStatement(Connection conn, String tableName, Map<String, Integer> columns) {
         final String statement = getStatementBuffer(tableName, columns);
         
         try {
@@ -346,12 +357,14 @@ public class MigrateData extends Task {
         return retval;
     }
 
-    private Map<String, Integer> getColumnMap(final Connection source, final Connection target, String tableName) {
-        final Map<String, Integer> retval = new HashMap<String, Integer>();
+    private Map<String, Integer> getColumnMap(final RdbmsConfig source, final RdbmsConfig target, String tableName) {
+        final Connection targetDb = target.getConnection();
+        final Connection sourceDb = source.getConnection();
+        final Map<String,Integer> retval = new HashMap<String,Integer>();
         final Collection<String> toRemove = new ArrayList<String>();
 
         try {
-            final ResultSet columnResults = target.getMetaData().getColumns(null, null, tableName, null);
+            final ResultSet columnResults = targetDb.getMetaData().getColumns(null, target.getSchema(), tableName.toUpperCase(), null);
             while (columnResults.next()) {
                 retval.put(columnResults.getString("COLUMN_NAME"),
                            columnResults.getInt("DATA_TYPE"));
@@ -364,7 +377,7 @@ public class MigrateData extends Task {
 
         for (final String column : retval.keySet()) {
             try {
-                final ResultSet columnResults = source.getMetaData().getColumns(null, null, tableName, column);
+                final ResultSet columnResults = sourceDb.getMetaData().getColumns(null, source.getSchema(), tableName, column);
                 if (!columnResults.next()) {
                     toRemove.add(column);
                 }
@@ -376,6 +389,7 @@ public class MigrateData extends Task {
         }
 
         for (final String column : toRemove) {
+            log("Removing column " + column);
             retval.remove(column);
         }
         

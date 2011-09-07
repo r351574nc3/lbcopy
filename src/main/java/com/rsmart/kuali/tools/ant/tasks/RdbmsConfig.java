@@ -16,6 +16,7 @@
  */
 package com.rsmart.kuali.tools.ant.tasks;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Vector;
 
@@ -41,6 +42,7 @@ public class RdbmsConfig extends Task {
     private String username;
     private String password;
     private String driver;
+    private Connection connection;
     
     public RdbmsConfig() {
     }
@@ -61,6 +63,25 @@ public class RdbmsConfig extends Task {
      */
     public final void setUrl(final String argUrl) {
         this.url = argUrl;
+    }
+
+    
+    /**
+     * Gets the value of Connection
+     *
+     * @return the value of Connection
+     */
+    public final Connection getConnection() {
+        return this.connection;
+    }
+    
+    /**
+     * Sets the value of connection
+     *
+     * @param argConnection Value to assign to this.connection
+     */
+    public final void setConnection(final Connection argConnection) {
+        this.connection = argConnection;
     }
 
     /**

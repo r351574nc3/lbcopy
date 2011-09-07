@@ -115,7 +115,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         }
 
         if (isStateSaved()) {
-            log("Starting data load");
+            log("Starting data load from schema " + source.getSchema());
             MigrateData migrateTask = new MigrateData();
             migrateTask.bindToOwner(this);
             migrateTask.init();
