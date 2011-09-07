@@ -110,55 +110,6 @@
                        stateSaved="${stateSaved}"
                        changeLogFile="work/export/${target.username}"
                        classpathref="liquibase.classpath" />
-
-    <echo file="/tmp/post-process.py"><![CDATA[#!/usr/bin/env python
-import os
-import os.path
-import re
-import sys
-
-def replaceInFile(fileName, sourceText, replaceText):
-    file = open(fileName, "r") #Opens the file in read-mode
-    text = file.read() #Reads the file and assigns the value to a variable
-    file.close() #Closes the file (read session)
-    file = open(fileName, "w") #Opens the file again, this time in write-mode
-    file.write(text.replace(sourceText, replaceText)) #replaces all instances of our keyword
-    # and writes the whole output when done, wiping over the old contents of the file
-    file.close() #Closes the file (write session)
-    print "All went well, the modifications are done"
-
-def replaceRegexInFile(fileName, regex, sourceText, replaceText):
-    file = open(fileName, "r") #Opens the file in read-mode
-    text = file.read() #Reads the file and assigns the value to a variable
-    file.close() #Closes the file (read session)
-    file = open(fileName, "w") #Opens the file again, this time in write-mode
-
-    # Iterate over each line in the text
-    for line in text.split('\n'):
-        if re.search(regex, line):
-            line = line.replace(sourceText, replaceText)
-        file.write(line + "\n") #replaces all instances of our keyword
-    
-    # and writes the whole output when done, wiping over the old contents of the file
-    file.close() #Closes the file (write session)
-    print "All went well, the modifications are done"
-
-replaceInFile(os.path.join('${basedir}', 'work', 'export', '${target.username}-cst.xml'), 
-       '<changeSet', 
-       '<changeSet failOnError="false"')
-]]>
-    </echo>
-
-    <exec executable="/usr/bin/python">
-      <arg value="/tmp/post-process.py" />
-    </exec>
-    <delete file="/tmp/post-process.py" />
-
-    <move todir="${changelog.directory}">
-      <fileset dir="work/export/">
-        <include name="**/*" />
-      </fileset>
-    </move>
   </target>
 
   <target name="migrate-tables" depends="db-init">
