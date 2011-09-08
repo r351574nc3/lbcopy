@@ -29,7 +29,8 @@ public class CreateViewChange extends liquibase.change.core.CreateViewChange {
 			replaceIfExists = true;
 		}
 
-		if (!supportsReplaceIfExistsOption(database) && replaceIfExists) {
+		if ((database instanceof SQLiteDatabase
+		    || database instanceof MSSQLDatabase) && replaceIfExists) {
 			statements.add(new DropViewStatement(null, getViewName()));
 			statements.add(new CreateViewStatement(null, getViewName(), getSelectQuery(),
 					false));
