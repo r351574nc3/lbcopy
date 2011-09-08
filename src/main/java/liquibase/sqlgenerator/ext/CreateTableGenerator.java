@@ -24,7 +24,13 @@ import java.util.Locale;
 import java.util.Iterator;
 
 public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTableGenerator {
+
+    @Override
+    public int getPriority() {
+        return 100;
+    }
     
+    @Override
     public ValidationErrors validate(CreateTableStatement createTableStatement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         ValidationErrors validationErrors = new ValidationErrors();
         validationErrors.checkRequiredField("tableName", createTableStatement.getTableName());
@@ -32,6 +38,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
         return validationErrors;
     }
 
+    @Override
     public Sql[] generateSql(CreateTableStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         StringBuffer buffer = new StringBuffer();
         

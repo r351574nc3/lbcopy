@@ -15,6 +15,11 @@ import liquibase.statement.core.AddForeignKeyConstraintStatement;
  * Leo Przybylski (leo [at] rsmart.com) 
  */
 public class AddForeignKeyConstraintChange extends liquibase.change.core.AddForeignKeyConstraintChange {
+    public AddForeignKeyConstraintChange() {
+        setPriority(100);
+    }
+
+
     public SqlStatement[] generateStatements(Database database) {
 
         boolean deferrable = false;

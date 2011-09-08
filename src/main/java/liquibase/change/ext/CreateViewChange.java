@@ -21,6 +21,10 @@ import java.util.List;
  * @author Leo Przybylski (leo [at] rsmart.com)
  */
 public class CreateViewChange extends liquibase.change.core.CreateViewChange {
+    public CreateViewChange() {
+        setPriority(100);
+    }
+
 	public SqlStatement[] generateStatements(Database database) {
 		List<SqlStatement> statements = new ArrayList<SqlStatement>();
 

@@ -11,7 +11,7 @@ import liquibase.database.structure.type.DateTimeType;
 public class MySQLTypeConverter extends liquibase.database.typeconversion.core.MySQLTypeConverter {
 
     public int getPriority() {
-        return 10;
+        return 100;
     }
 
 }

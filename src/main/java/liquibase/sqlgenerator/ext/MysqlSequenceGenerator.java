@@ -23,7 +23,7 @@ public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceS
 
     @Override
     public int getPriority() {
-        return 10;
+        return 100;
     }
     
     @Override
@@ -31,10 +31,12 @@ public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceS
         return ("mysql".equals(database.getTypeName()));
     }
 
+    @Override
     public ValidationErrors validate(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         return new ValidationErrors();
     }
 
+    @Override
     public Sql[] generateSql(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
         list.add(new UnparsedSql(String.format(CREATE_SEQUENCE_STATEMENT, statement.getSequenceName())));
