@@ -10,14 +10,15 @@ import liquibase.exception.DatabaseException;
 public class MySqlDatabase extends liquibase.database.core.MySQLDatabase {
 
     public int getPriority() {
-        return 100;
+        return 200;
     }
 
     @Override
     public String getViewDefinition(String schemaName, String viewName) throws DatabaseException {
         String retval = super.getViewDefinition(schemaName, viewName);
         final String schemaStr = String.format("`%s`.", schemaName);
-        retval = retval.replace(schemaStr, "");
+        retval = retval.replaceAll(schemaStr, "");
+        System.out.println("New view definition is " + retval);
         return retval;
     }
 }
