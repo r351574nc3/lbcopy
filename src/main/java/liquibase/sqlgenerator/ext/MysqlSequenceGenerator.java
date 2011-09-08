@@ -23,7 +23,7 @@ public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceS
 
     @Override
     public int getPriority() {
-        return 1;
+        return 10;
     }
     
     @Override
