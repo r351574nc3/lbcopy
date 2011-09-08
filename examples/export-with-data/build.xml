@@ -19,7 +19,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all"
           xmlns:lbcopy="antlib:com.rsmart.kuali.tools.lbcopy"
           xmlns:lb="antlib:org.liquibase">
-  <target name="init">
+  <target name="init" unless="initialized">
     <property file="resources/build.properties" />
 
     <property name="ivy.install.version" value="2.0.0-beta1"/>
@@ -35,12 +35,6 @@
     
     
     <ivy:cachepath pathid="dependency.classpath" conf="default" />
-    <!--
-  <path id="dependency.classpath">
-      <fileset dir="${lib.directory}" includes="**/*.jar" />
-      <fileset dir="lib" includes="**/*.jar" />
-    </path>
-    -->
 
     <taskdef uri="antlib:org.liquibase" 
              resource="liquibasetasks.properties"
@@ -54,7 +48,8 @@
 
   </target>
   
-  <target name="db-init" depends="init,resolve">
+  <target name="db-init" depends="init,download-ivy" unless="initialized">
+    <property name="initialized" value="true" />
     <property resource="dbcopy.properties" classpathref="dependency.classpath" />
     <property name="credentials.properties" value="credentials.properties" />
     <property file="${credentials.properties}" />
@@ -110,6 +105,12 @@
                        stateSaved="${stateSaved}"
                        changeLogFile="work/export/${target.username}"
                        classpathref="liquibase.classpath" />
+
+    <move todir="${changelog.directory}">
+      <fileset dir="work/export/">
+        <include name="**/*" />
+      </fileset>
+    </move>
   </target>
 
   <target name="migrate-tables" depends="db-init">
@@ -179,6 +180,7 @@
     -->
     <echo message="installing ivy..."/>
     <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+    <property name="skip.download" value="true" />
   </target>
 
     <!-- ================================= 

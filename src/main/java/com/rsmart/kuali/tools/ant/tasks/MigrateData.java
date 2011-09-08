@@ -16,7 +16,10 @@
  */
 package com.rsmart.kuali.tools.ant.tasks;
 
+import java.io.PrintStream;
 import java.io.Reader;
+
+import java.lang.reflect.Field;
 
 import java.sql.Blob;
 import java.sql.Clob;
@@ -39,6 +42,7 @@ import java.util.Observer;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
@@ -105,7 +109,7 @@ public class MigrateData extends Task {
         float recordVisitor = 0;
         final ProgressObserver progressObserver = new ProgressObserver(recordCountIncrementor.getValue(),
                                                                        48f, 48f/100,
-                                                                       "\r|%s| %s (%d/%d) records");
+                                                                       "\r|%s%%| %s (%d/%d) records");
         final ProgressObservable observable = new ProgressObservable();
         observable.addObserver(progressObserver);
 
@@ -141,7 +145,7 @@ public class MigrateData extends Task {
         target.setConnection(null);
 
         if (columns.size() < 1) {
-            log("Columns are empty");
+            debug("Columns are empty");
             return;
         }
 
@@ -150,65 +154,69 @@ public class MigrateData extends Task {
 
         final boolean hasClob = columns.values().contains(Types.CLOB);
 
-        log("Migrating table " + tableName);
+        debug("Migrating table " + tableName);
 
         try {
             fromStatement = sourceDb.createStatement();
 
             final ResultSet results = fromStatement.executeQuery(String.format(SELECT_ALL_QUERY, tableName));
             while (results.next()) {
-                toStatement.clearParameters();
-
-                int i = 1;
-                for (String columnName : columns.keySet()) {
-                    final Object value = results.getObject(columnName);
+                try {
+                    toStatement.clearParameters();
                     
-                    if (value != null) {
-                        try {
-                            handleLob(toStatement, value, i);
-                        }
-                        catch (Exception e) {
-                            System.err.println(String.format("Error processing %s.%s %s", tableName, columnName, columns.get(columnName)));
-                            if (Clob.class.isAssignableFrom(value.getClass())) {
-                                System.err.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                    int i = 1;
+                    for (String columnName : columns.keySet()) {
+                        final Object value = results.getObject(columnName);
+                        
+                        if (value != null) {
+                            try {
+                                handleLob(toStatement, value, i);
                             }
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-                        toStatement.setObject(i,value);
-                    } 
-                    i++;
-                }
-                
-                boolean retry = true;
-                while(retry) {
-                    try {
-                        toStatement.execute();
-                        retry = false;
-                    }
-                    catch (SQLException sqle) {
-                        retry = false;
-                        if (sqle.getMessage().contains("ORA-00942")) {
-                            log("Couldn't find " + tableName);
-                            log("Tried insert statement " + getStatementBuffer(tableName, columns));
-                            // sqle.printStackTrace();
-                        }
-                        else if (sqle.getMessage().contains("ORA-12519")) {
-                            retry = true;
-                            log("Tried insert statement " + getStatementBuffer(tableName, columns));
-                            sqle.printStackTrace();
-                        }
-                        else if (sqle.getMessage().contains("IN or OUT")) {
-                            log("Column count was " + columns.keySet().size());
+                            catch (Exception e) {
+                                System.err.println(String.format("Error processing %s.%s %s", tableName, columnName, columns.get(columnName)));
+                                if (Clob.class.isAssignableFrom(value.getClass())) {
+                                    System.err.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                                }
+                                e.printStackTrace();
+                            }
                         }
                         else {
-                            sqle.printStackTrace();
+                            toStatement.setObject(i,value);
+                        } 
+                        i++;
+                    }
+                    
+                    boolean retry = true;
+                    while(retry) {
+                        try {
+                            toStatement.execute();
+                            retry = false;
+                        }
+                        catch (SQLException sqle) {
+                            retry = false;
+                            if (sqle.getMessage().contains("ORA-00942")) {
+                                log("Couldn't find " + tableName);
+                                log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                // sqle.printStackTrace();
+                            }
+                            else if (sqle.getMessage().contains("ORA-12519")) {
+                                retry = true;
+                                log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                sqle.printStackTrace();
+                            }
+                            else if (sqle.getMessage().contains("IN or OUT")) {
+                                log("Column count was " + columns.keySet().size());
+                            }
+                            else {
+                                sqle.printStackTrace();
+                            }
                         }
                     }
+                    
                 }
-                
-                observable.incrementRecord();
+                finally {
+                    observable.incrementRecord();
+                }
             }
             results.close();
         }
@@ -389,7 +397,6 @@ public class MigrateData extends Task {
         }
 
         for (final String column : toRemove) {
-            log("Removing column " + column);
             retval.remove(column);
         }
         
@@ -515,6 +522,7 @@ public class MigrateData extends Task {
         private float ratio;
         private String template;
         private float count;
+        private PrintStream out;
         
         public ProgressObserver(final float total,
                                 final float length,
@@ -525,6 +533,15 @@ public class MigrateData extends Task {
             this.ratio    = ratio;
             this.length   = length;
             this.count    = 0;
+
+            try {
+                final Field field = Main.class.getDeclaredField("out");
+                field.setAccessible(true);
+                out = (PrintStream) field.get(null);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         public synchronized void update(Observable o, Object arg) {
@@ -542,10 +559,12 @@ public class MigrateData extends Task {
                 progressBuffer.append(' ');
             }
             
-            // System.err.print(String.format(template, progressBuffer, percent, (int) count, (int) total));
+            out.print(String.format(template, progressBuffer, percent, (int) count, (int) total));
+            /*
             if ((count % 5000) == 0 || count == total) {
-                log(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
-            }
+                out.print(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
+                }
+            */
         }
     }
 }
