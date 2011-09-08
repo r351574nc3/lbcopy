@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class CreateViewChange extends liquibase.change.core.CreateViewChange {
     public CreateViewChange() {
-        setPriority(100);
+        setPriority(200);
     }
 
 	public SqlStatement[] generateStatements(Database database) {
