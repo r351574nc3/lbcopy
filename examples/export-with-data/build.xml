@@ -27,6 +27,7 @@
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
     <property name="build.dir" value="build"/>
     <property name="src.dir" value="src"/>
+    <antcall target="download-ivy" inheritAll="true" />
     
     <path id="ivy.lib.path">
       <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
@@ -48,7 +49,7 @@
 
   </target>
   
-  <target name="db-init" depends="init,download-ivy" unless="initialized">
+  <target name="db-init" depends="init" unless="initialized">
     <property name="initialized" value="true" />
     <property resource="dbcopy.properties" classpathref="dependency.classpath" />
     <property name="credentials.properties" value="credentials.properties" />

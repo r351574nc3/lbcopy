@@ -114,6 +114,7 @@ public class MigrateData extends Task {
         observable.addObserver(progressObserver);
 
         for (final String tableName : tableData.keySet()) {
+            debug("Migrating table " + tableName + " with " + tableData.get(tableName) + " records");
             if (!(tableName.toUpperCase().startsWith(LIQUIBASE_TABLE) && tableData.get(tableName) > 0)) {
                 if (threadCount < MAX_THREADS) {
                     new Thread(new Runnable() {
@@ -145,7 +146,7 @@ public class MigrateData extends Task {
         target.setConnection(null);
 
         if (columns.size() < 1) {
-            debug("Columns are empty");
+            log("Columns are empty");
             return;
         }
 
@@ -154,7 +155,6 @@ public class MigrateData extends Task {
 
         final boolean hasClob = columns.values().contains(Types.CLOB);
 
-        debug("Migrating table " + tableName);
 
         try {
             fromStatement = sourceDb.createStatement();
@@ -315,6 +315,7 @@ public class MigrateData extends Task {
             
             while (tableResults.next()) {
                 final String tableName = tableResults.getString("TABLE_NAME");
+                if (tableName.toUpperCase().startsWith(LIQUIBASE_TABLE)) continue;
                 final int rowCount = getTableRecordCount(sourceConn, tableName);
                 incrementor.increment(rowCount);
                 retval.put(tableName, rowCount);
