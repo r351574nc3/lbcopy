@@ -62,7 +62,7 @@ public class Diff {
 	public DiffResult compare() throws DatabaseException {
 		if (referenceSnapshot == null) {
 			referenceSnapshot = DatabaseSnapshotGeneratorFactory.getInstance()
-					.createSnapshot(referenceDatabase, null, statusListeners);
+                .createSnapshot(referenceDatabase, referenceDatabase.getDefaultSchemaName(), statusListeners);
 		}
 
 		if (targetSnapshot == null) {
@@ -70,7 +70,7 @@ public class Diff {
 				targetSnapshot = new DatabaseSnapshot(referenceDatabase, null);
 			} else {
 				targetSnapshot = DatabaseSnapshotGeneratorFactory.getInstance()
-						.createSnapshot(targetDatabase, null, statusListeners);
+                    .createSnapshot(targetDatabase, referenceDatabase.getDefaultSchemaName(), statusListeners);
 			}
 		}
 

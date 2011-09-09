@@ -16,7 +16,7 @@
    specific language governing permissions and limitations
    under the License.    
 -->
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all"
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all-parent"
           xmlns:lbcopy="antlib:com.rsmart.kuali.tools.lbcopy"
           xmlns:lb="antlib:org.liquibase">
   <target name="init" unless="initialized">
@@ -99,7 +99,7 @@
        />
   </target>
   
-  <target name="export-all" depends="db-init,clean">
+  <target name="export-all" depends="db-init,clean" unless="export.unnecessary">
     <property name="stateSaved" value="true" />
     <mkdir dir="work/export/" />
     <lbcopy:generateChangeLog source="source" target="target" 
@@ -173,6 +173,13 @@
   </target>
 
   <target name="migrate-all" depends="migrate-schema, migrate-data, migrate-constraints" />
+
+  <target name="migrate-all-parent" depends="db-init">
+    <property name="stateSaved" value="false" />
+    <available file="${changelog.directory}${target.username}-tab.xml" property="export.unnecessary" />
+    <antcall target="export-all" inheritAll="true" inheritRefs="true" />
+    <antcall target="migrate-all" inheritAll="true" inheritRefs="true" />
+  </target>
 
   <target name="download-ivy" unless="skip.download">
     <mkdir dir="${ivy.jar.dir}"/>

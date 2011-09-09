@@ -26,6 +26,8 @@ import liquibase.Liquibase;
 import liquibase.integration.ant.AntResourceAccessor;
 import liquibase.integration.ant.BaseLiquibaseTask;
 import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
 import org.apache.tools.ant.BuildException;
 
 import com.rsmart.kuali.tools.liquibase.Diff;
@@ -77,23 +79,15 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
     public void execute() {
         final RdbmsConfig source = (RdbmsConfig) getProject().getReference(getSource());
         final RdbmsConfig target = (RdbmsConfig) getProject().getReference(getTarget());
-
         Database lbSource = null;
         Database lbTarget = null;
-        
+        final DatabaseFactory factory = DatabaseFactory.getInstance();
         try {
-            lbSource = createDatabaseObject(source.getDriver(),
-                                            source.getUrl(),
-                                            source.getUsername(),
-                                            source.getPassword(),
-                                            getDefaultSchemaName(), 
-                                            null);
-            lbTarget = createDatabaseObject(target.getDriver(),
-                                            target.getUrl(),
-                                            target.getUsername(),
-                                            target.getPassword(),
-                                            getDefaultSchemaName(), 
-                                            null);
+            lbSource = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("source")));
+            lbSource.setDefaultSchemaName(source.getSchema());
+            lbTarget = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("target")));
+            lbTarget.setDefaultSchemaName(target.getSchema());
+
             exportSchema(lbSource, lbTarget);
             if (isStateSaved()) {
                 exportData(lbSource, lbTarget);
@@ -140,7 +134,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
 
     protected void exportSchema(Database source, Database target) {
         try {
-            Diff diff = new Diff(source, getDefaultSchemaName());
+            Diff diff = new Diff(source, source.getDefaultSchemaName());
             exportTables(diff, target);
             exportSequences(diff, target);
             exportViews(diff, target);
@@ -249,6 +243,8 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         return openConnection(config);
     }
     
+
+
     private Connection openConnection(RdbmsConfig config) {
         Connection retval = null;
 
