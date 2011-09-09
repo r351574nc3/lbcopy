@@ -17,8 +17,8 @@ public class MySqlDatabase extends liquibase.database.core.MySQLDatabase {
     public String getViewDefinition(String schemaName, String viewName) throws DatabaseException {
         String retval = super.getViewDefinition(schemaName, viewName);
         final String schemaStr = String.format("`%s`.", schemaName);
-        retval = retval.replaceAll(schemaStr, "");
-        System.out.println("New view definition is " + retval);
+        retval = retval.replaceAll(schemaStr.toLowerCase(), "");
+        retval = retval.replaceAll(schemaStr.toUpperCase(), "");
         return retval;
     }
 }

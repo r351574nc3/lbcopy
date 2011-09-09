@@ -23,6 +23,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Iterator;
 
+/**
+ *
+ * @author Leo Przybylski (leo [at] rsmart.com)
+ */
 public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTableGenerator {
 
     @Override
@@ -42,14 +46,14 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
     public Sql[] generateSql(CreateTableStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         StringBuffer buffer = new StringBuffer();
         
-        buffer.append("CREATE TABLE ").append(database.escapeTableName(statement.getSchemaName(), statement.getTableName())).append(" ");
+        buffer.append("CREATE TABLE ").append(database.escapeTableName(null, statement.getTableName())).append(" ");
         buffer.append("(");
         Iterator<String> columnIterator = statement.getColumns().iterator();
         while (columnIterator.hasNext()) {
             String column = columnIterator.next();
             boolean isAutoIncrement = statement.getAutoIncrementColumns().contains(column);
 
-            buffer.append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), column));
+            buffer.append(database.escapeColumnName(null, statement.getTableName(), column));
             buffer.append(" ").append(statement.getColumnTypes().get(column));
 
             if ((database instanceof SQLiteDatabase) &&
@@ -99,7 +103,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 if (database.supportsAutoIncrement()) {
                     buffer.append(" ").append(database.getAutoIncrementClause()).append(" ");
                 } else {
-                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(statement.getSchemaName(), statement.getTableName())));
+                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(null, statement.getTableName())));
                 }
             }
 
@@ -172,11 +176,8 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(database.escapeConstraintName(fkConstraint.getForeignKeyName()));
         	}
             String referencesString = fkConstraint.getReferences();
-            if (!referencesString.contains(".") && database.getDefaultSchemaName() != null) {
-                referencesString = database.getDefaultSchemaName()+"."+referencesString;
-            }
             buffer.append(" FOREIGN KEY (")
-                    .append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), fkConstraint.getColumn()))
+                    .append(database.escapeColumnName(null, statement.getTableName(), fkConstraint.getColumn()))
                     .append(") REFERENCES ")
                     .append(referencesString);
 
