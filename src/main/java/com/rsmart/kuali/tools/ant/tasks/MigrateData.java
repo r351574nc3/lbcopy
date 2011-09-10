@@ -67,7 +67,7 @@ public class MigrateData extends Task {
         new int[] {Types.CHAR, Types.VARCHAR, Types.TIME, Types.LONGVARCHAR, Types.DATE, Types.TIMESTAMP};
 
     private static final String HSQLDB_PUBLIC      = "PUBLIC";
-    private static final int    MAX_THREADS        = 2;
+    private static final int    MAX_THREADS        = 3;
 
     
     private String source;
@@ -130,6 +130,15 @@ public class MigrateData extends Task {
                     migrate(source, target, tableName, observable);
                 }
             }
+        }
+        try {
+            final Connection targetDb = openConnection(target);
+            Statement st = targetDb.createStatement();
+            st.execute("CHECKPOINT"); 
+            st.close();
+        }
+        catch (Exception e) {
+            throw new BuildException(e);
         }
     }
 
@@ -228,7 +237,7 @@ public class MigrateData extends Task {
                 try {
                     if (sourceDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = sourceDb.createStatement();
-                        st.execute("CHECKPOINT"); 
+                        // st.execute("CHECKPOINT"); 
                         st.close();
                     }
                     fromStatement.close();
@@ -243,7 +252,7 @@ public class MigrateData extends Task {
                     targetDb.commit();
                     if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = targetDb.createStatement();
-                        st.execute("CHECKPOINT"); 
+                        // st.execute("CHECKPOINT"); 
                         st.close();
                     }
                     toStatement.close();
