@@ -133,9 +133,12 @@ public class MigrateData extends Task {
         }
         try {
             final Connection targetDb = openConnection(target);
-            Statement st = targetDb.createStatement();
-            st.execute("CHECKPOINT"); 
-            st.close();
+            if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
+                Statement st = targetDb.createStatement();
+                st.execute("CHECKPOINT"); 
+                st.close();
+            }
+            targetDb.close();
         }
         catch (Exception e) {
             throw new BuildException(e);
