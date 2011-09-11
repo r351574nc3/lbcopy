@@ -6,6 +6,7 @@ import liquibase.change.ConstraintsConfig;
 import liquibase.change.core.*;
 import liquibase.changelog.ChangeSet;
 import liquibase.database.Database;
+import liquibase.database.jvm.JdbcConnection;
 import liquibase.database.structure.*;
 import liquibase.database.typeconversion.TypeConverter;
 import liquibase.database.typeconversion.TypeConverterFactory;
@@ -33,6 +34,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.math.BigInteger;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.*;
 
 public class DiffResult {
@@ -705,10 +709,39 @@ public class DiffResult {
 			CreateSequenceChange change = new CreateSequenceChange();
 			change.setSequenceName(sequence.getName());
 			change.setSchemaName(sequence.getSchema());
-
+            try {
+                change.setStartValue(getStartValue(targetSnapshot.getDatabase(), sequence.getName()));
+            }
+            catch (Exception e) {
+                // quietly don't set start value
+            }
 			changes.add(generateChangeSet(change));
 		}
 	}
+
+
+    protected BigInteger getStartValue(final Database database, final String sequenceName) throws DatabaseException {
+        final JdbcConnection connection = (JdbcConnection) database.getConnection();
+        BigInteger retval = null;
+        try {
+            final Statement state = connection.createStatement();
+            try {
+                final ResultSet rs = state.executeQuery("select max(id) as MAX from " + sequenceName);
+                if (rs.next()) {
+                    retval = new BigInteger(rs.getString("MAX"));
+                }
+                rs.close();
+            }
+            finally {
+                state.close();
+            }
+        }
+        catch (Exception e) {
+            throw new DatabaseException(e);
+        }
+        return retval;
+    }
+    
 
 	private void addUnexpectedColumnChanges(List<ChangeSet> changes) {
 		for (Column column : getUnexpectedColumns()) {

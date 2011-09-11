@@ -1,0 +1,204 @@
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one
+   or more contributor license agreements.  See the NOTICE file
+   distributed with this work for additional information
+   regarding copyright ownership.  The ASF licenses this file
+   to you under the Apache License, Version 2.0 (the
+   "License"); you may not use this file except in compliance
+   with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing,
+   software distributed under the License is distributed on an
+   "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+   KIND, either express or implied.  See the License for the
+   specific language governing permissions and limitations
+   under the License.    
+-->
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all-parent"
+          xmlns:lbcopy="antlib:com.rsmart.kuali.tools.lbcopy"
+          xmlns:lb="antlib:org.liquibase">
+  <target name="init" unless="initialized">
+    <property file="resources/build.properties" />
+
+    <property name="ivy.install.version" value="2.0.0-beta1"/>
+    <property name="ivy.jar.dir" value="${basedir}/ivy"/>
+    <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
+    <property name="build.dir" value="build"/>
+    <property name="src.dir" value="src"/>
+    <antcall target="download-ivy" inheritAll="true" />
+    
+    <path id="ivy.lib.path">
+      <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
+    
+    
+    <ivy:cachepath pathid="dependency.classpath" conf="default" />
+
+    <taskdef uri="antlib:org.liquibase" 
+             resource="liquibasetasks.properties"
+             classpathref="dependency.classpath"/>
+
+  	<!-- START SNIPPET: build-taskdef -->
+    <taskdef uri="antlib:com.rsmart.kuali.tools.lbcopy"
+             resource="com/rsmart/kuali/tools/lbcopy/antlib.xml"
+             classpathref="dependency.classpath"/>
+  	<!-- END SNIPPET: build-taskdef -->
+
+  </target>
+  
+  <target name="db-init" depends="init" unless="initialized">
+    <property name="initialized" value="true" />
+    <property resource="dbcopy.properties" classpathref="dependency.classpath" />
+    <property name="credentials.properties" value="credentials.properties" />
+    <property file="${credentials.properties}" />
+    <property name="schema.file.prefix" value="${target.schema}" />
+
+    <path id="liquibase.classpath">
+      <fileset dir="${changelog.directory}" includes="*.jar" />
+    </path>
+
+    <!--
+    <fail unless="source.url">source.url not set</fail>
+    <fail unless="source.driver">source.driver not set</fail>    
+    <fail unless="source.username">source.username not set</fail>
+    <fail unless="source.password">source.password not set</fail>    
+    <fail unless="target.url">target.url not set</fail>
+    <fail unless="target.driver">target.driver not set</fail>    
+    <fail unless="target.username">target.username not set</fail>
+    <fail unless="target.password">target.password not set</fail>    
+    -->
+
+    <lbcopy:rdbmsConfig       id="source"
+                             url="${source.url}"
+                          driver="${source.driver}"
+                          schema="${source.schema}"
+                        username="${source.username}"
+                        password="${source.password}" />
+
+    <lbcopy:rdbmsConfig       id="target"
+                             url="${target.url}"
+                          driver="${target.driver}"
+                          schema="${target.schema}"
+                        username="${target.username}"
+                        password="${target.password}" />
+    <lbcopy:liquibaseSetup rdbmsConfigId="target" />
+  </target>
+
+  <target name="clean">
+    <delete dir="work" failonerror="false" />    
+    <mkdir dir="work" />
+  </target>
+
+  <target name="migrate-clean" depends="db-init">
+    <lbcopy:dropAllDatabaseObjects
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+  </target>
+  
+  <target name="export-all" depends="db-init,clean" unless="export.unnecessary">
+    <property name="stateSaved" value="true" />
+    <mkdir dir="work/export/" />
+    <lbcopy:generateChangeLog source="source" target="target" 
+                       stateSaved="${stateSaved}"
+                       changeLogFile="work/export/${target.username}"
+                       classpathref="liquibase.classpath" />
+
+    <move todir="${changelog.directory}">
+      <fileset dir="work/export/">
+        <include name="**/*" />
+      </fileset>
+    </move>
+  </target>
+
+  <target name="migrate-tables" depends="db-init">
+    <lbcopy:updateDatabase
+       changeLogFile="${changelog.directory}${schema.file.prefix}-tab.xml"
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+    <lbcopy:updateDatabase
+       changeLogFile="${changelog.directory}${schema.file.prefix}-idx.xml"
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+  </target>
+
+  <target name="migrate-views" depends="db-init">
+    <lb:updateDatabase
+       changeLogFile="${changelog.directory}${schema.file.prefix}-vw.xml"
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+  </target>
+
+  <target name="migrate-sequences" depends="db-init">
+    <lbcopy:updateDatabase
+       changeLogFile="${changelog.directory}${schema.file.prefix}-seq.xml"
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+  </target>
+
+  <target name="migrate-schema" depends="db-init,migrate-clean,migrate-tables,migrate-views,migrate-sequences" />
+
+  <target name="migrate-constraints" depends="db-init">
+    <lbcopy:updateDatabase
+       changeLogFile="${changelog.directory}${schema.file.prefix}-cst.xml"
+       driver="${target.driver}"
+       url="${lb.database.url}"
+       username="${lb.database.username}"
+       password="${lb.database.password}"
+       classpathref="liquibase.classpath"
+       />
+  </target>
+
+  <target name="migrate-data" depends="db-init">
+    <lbcopy:migrateData source="source" target="target" />
+  </target>
+
+  <target name="migrate-all" depends="migrate-schema, migrate-data, migrate-constraints" />
+
+  <target name="migrate-all-parent" depends="db-init">
+    <property name="stateSaved" value="false" />
+    <available file="${changelog.directory}${target.username}-tab.xml" property="export.unnecessary" />
+    <antcall target="export-all" inheritAll="true" inheritRefs="true" />
+    <antcall target="migrate-all" inheritAll="true" inheritRefs="true" />
+  </target>
+
+  <target name="download-ivy" unless="skip.download">
+    <mkdir dir="${ivy.jar.dir}"/>
+    <!--
+        download Ivy from web site so that it can be used even without any special installation
+    -->
+    <echo message="installing ivy..."/>
+    <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+    <property name="skip.download" value="true" />
+  </target>
+
+    <!-- ================================= 
+         target: resolve              
+         ================================= -->
+    <target name="resolve" description="--> retrieve dependencies with ivy" depends="init">
+      <ivy:retrieve />
+    </target>
+    
+</project>

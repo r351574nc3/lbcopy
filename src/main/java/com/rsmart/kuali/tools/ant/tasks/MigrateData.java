@@ -57,7 +57,7 @@ import static org.apache.tools.ant.Project.MSG_DEBUG;
  */
 public class MigrateData extends Task {
     
-    private static final String RECORD_COUNT_QUERY = "select count(*) as COUNT from %s";
+    private static final String RECORD_COUNT_QUERY = "select count(*) as \"COUNT\" from %s";
     private static final String SELECT_ALL_QUERY   = "select * from %s";
     private static final String INSERT_STATEMENT   = "insert into %s (%s) values (%s)";
     private static final String DATE_CONVERSION    = "TO_DATE('%s', 'YYYYMMDDHH24MISS')";
@@ -145,10 +145,10 @@ public class MigrateData extends Task {
         }
     }
 
-    private void migrate(final RdbmsConfig source, 
-                         final RdbmsConfig target, 
-                         final String tableName, 
-                         final ProgressObservable observable) {
+    protected void migrate(final RdbmsConfig source, 
+                           final RdbmsConfig target, 
+                           final String tableName, 
+                           final ProgressObservable observable) {
         final Connection sourceDb = openConnection(source);
         final Connection targetDb = openConnection(target);
         source.setConnection(sourceDb);
@@ -158,7 +158,7 @@ public class MigrateData extends Task {
         target.setConnection(null);
 
         if (columns.size() < 1) {
-            log("Columns are empty");
+            log("Columns are empty for " + tableName);
             return;
         }
 
@@ -383,7 +383,7 @@ public class MigrateData extends Task {
         final Connection sourceDb = source.getConnection();
         final Map<String,Integer> retval = new HashMap<String,Integer>();
         final Collection<String> toRemove = new ArrayList<String>();
-
+        log("Looking up columns in schema " + target.getSchema());
         try {
             final ResultSet columnResults = targetDb.getMetaData().getColumns(null, target.getSchema(), tableName.toUpperCase(), null);
             while (columnResults.next()) {
@@ -432,7 +432,7 @@ public class MigrateData extends Task {
                 log("Couldn't find " + tableName);
                 log("Tried insert statement " + query);
             }
-
+            log("Exception executing " + query);
             throw new BuildException(e);
         }
         finally {
