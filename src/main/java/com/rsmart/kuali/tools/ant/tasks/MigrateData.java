@@ -166,8 +166,8 @@ public class MigrateData extends Task {
         Statement fromStatement = null;
 
         final boolean hasClob = columns.values().contains(Types.CLOB);
-
-
+        int recordsLost = 0;
+        
         try {
             fromStatement = sourceDb.createStatement();
 
@@ -224,7 +224,10 @@ public class MigrateData extends Task {
                             }
                         }
                     }
-                    
+                }
+                catch (Exception e) {
+                    recordsLost++;
+                    throw e;
                 }
                 finally {
                     observable.incrementRecord();
@@ -266,6 +269,7 @@ public class MigrateData extends Task {
                     e.printStackTrace();
                 }
             }
+            debug("Lost " +recordsLost + " records");
             columns.clear();
         }
     }
@@ -384,12 +388,16 @@ public class MigrateData extends Task {
         final Map<String,Integer> retval = new HashMap<String,Integer>();
         final Collection<String> toRemove = new ArrayList<String>();
         try {
-            final ResultSet columnResults = targetDb.getMetaData().getColumns(null, target.getSchema(), tableName.toUpperCase(), null);
-            while (columnResults.next()) {
-                retval.put(columnResults.getString("COLUMN_NAME"),
-                           columnResults.getInt("DATA_TYPE"));
+            final Statement state = targetDb.createStatement();                
+            final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
+            final ResultSetMetaData metadata = altResults.getMetaData();
+            
+            for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                retval.put(metadata.getColumnName(i),
+                           metadata.getColumnType(i));
             }
-            columnResults.close();
+            altResults.close();
+            state.close();
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -397,11 +405,16 @@ public class MigrateData extends Task {
 
         for (final String column : retval.keySet()) {
             try {
-                final ResultSet columnResults = sourceDb.getMetaData().getColumns(null, source.getSchema(), tableName, column);
-                if (!columnResults.next()) {
-                    toRemove.add(column);
+                final Statement state = targetDb.createStatement();                
+                final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
+                final ResultSetMetaData metadata = altResults.getMetaData();
+
+                for (int i = 1; i <= metadata.getColumnCount(); i++) {
+                    retval.put(metadata.getColumnName(i),
+                               metadata.getColumnType(i));
                 }
-                columnResults.close();
+                altResults.close();
+                state.close();
             }
             catch (Exception e) {
                 throw new BuildException(e);
