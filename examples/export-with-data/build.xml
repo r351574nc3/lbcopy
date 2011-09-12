@@ -54,11 +54,13 @@
     <property resource="dbcopy.properties" classpathref="dependency.classpath" />
     <property name="credentials.properties" value="credentials.properties" />
     <property file="${credentials.properties}" />
+    <property name="schema.file.prefix" value="${target.schema}" />
 
     <path id="liquibase.classpath">
-      <dirset dir="${changelog.directory}" includes="**/*" />
+      <fileset dir="${changelog.directory}" includes="*.jar" />
     </path>
-  
+
+    <!--
     <fail unless="source.url">source.url not set</fail>
     <fail unless="source.driver">source.driver not set</fail>    
     <fail unless="source.username">source.username not set</fail>
@@ -67,6 +69,7 @@
     <fail unless="target.driver">target.driver not set</fail>    
     <fail unless="target.username">target.username not set</fail>
     <fail unless="target.password">target.password not set</fail>    
+    -->
 
     <lbcopy:rdbmsConfig       id="source"
                              url="${source.url}"
@@ -116,7 +119,7 @@
 
   <target name="migrate-tables" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-tab.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-tab.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -124,7 +127,7 @@
        classpathref="liquibase.classpath"
        />
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-idx.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-idx.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -135,7 +138,7 @@
 
   <target name="migrate-views" depends="db-init">
     <lb:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-vw.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-vw.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -146,7 +149,7 @@
 
   <target name="migrate-sequences" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-seq.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-seq.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -159,7 +162,7 @@
 
   <target name="migrate-constraints" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-cst.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-cst.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
