@@ -20,7 +20,7 @@ import java.util.Arrays;
  */
 public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceStatement> {
     private static final String CREATE_SEQUENCE_STATEMENT = "CREATE TABLE IF NOT EXISTS %s (id bigint(19) NOT NULL auto_increment, PRIMARY KEY(id) )";
-    private static final String SET_START_VALUE_STATEMENT = "INSERT INTO % VALUES (%)";
+    private static final String SET_START_VALUE_STATEMENT = "INSERT INTO %s VALUES (%s)";
 
     @Override
     public int getPriority() {
@@ -41,7 +41,10 @@ public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceS
     public Sql[] generateSql(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
         list.add(new UnparsedSql(String.format(CREATE_SEQUENCE_STATEMENT, statement.getSequenceName())));
-        list.add(new UnparsedSql(String.format(SET_START_VALUE_STATEMENT, statement.getSequenceName(), statement.getStartValue())));
+        if (statement.getStartValue() != null) {
+            // System.out.println("Got start value " + statement.getStartValue());
+            list.add(new UnparsedSql(String.format(SET_START_VALUE_STATEMENT, statement.getSequenceName(), statement.getStartValue())));
+        }
         list.addAll(Arrays.asList(sqlGeneratorChain.generateSql(statement, database)));
 
         return list.toArray(new Sql[list.size()]);
