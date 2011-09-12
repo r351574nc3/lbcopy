@@ -383,7 +383,6 @@ public class MigrateData extends Task {
         final Connection sourceDb = source.getConnection();
         final Map<String,Integer> retval = new HashMap<String,Integer>();
         final Collection<String> toRemove = new ArrayList<String>();
-        log("Looking up columns in schema " + target.getSchema());
         try {
             final ResultSet columnResults = targetDb.getMetaData().getColumns(null, target.getSchema(), tableName.toUpperCase(), null);
             while (columnResults.next()) {

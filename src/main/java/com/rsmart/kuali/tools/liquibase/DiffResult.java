@@ -710,9 +710,10 @@ public class DiffResult {
 			change.setSequenceName(sequence.getName());
 			change.setSchemaName(sequence.getSchema());
             try {
-                change.setStartValue(getStartValue(targetSnapshot.getDatabase(), sequence.getName()));
+                change.setStartValue(getStartValue(referenceSnapshot.getDatabase(), sequence.getName()));
             }
             catch (Exception e) {
+                e.printStackTrace();
                 // quietly don't set start value
             }
 			changes.add(generateChangeSet(change));
@@ -726,9 +727,12 @@ public class DiffResult {
         try {
             final Statement state = connection.createStatement();
             try {
-                final ResultSet rs = state.executeQuery("select max(id) as MAX from " + sequenceName);
+                final ResultSet rs = state.executeQuery("select max(id) as \"MAX\" from " + sequenceName);
                 if (rs.next()) {
-                    retval = new BigInteger(rs.getString("MAX"));
+                    Object maxVal = rs.getObject(1);
+                    if (maxVal != null) {
+                        retval = new BigInteger(maxVal.toString());
+                    }
                 }
                 rs.close();
             }

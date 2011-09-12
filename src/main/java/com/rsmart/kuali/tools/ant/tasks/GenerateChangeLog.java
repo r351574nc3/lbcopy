@@ -183,7 +183,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         Database hsqldb = null;
         RdbmsConfig hsqldbConfig = new RdbmsConfig();
         hsqldbConfig.setDriver("org.hsqldb.jdbc.JDBCDriver");
-        hsqldbConfig.setUrl("jdbc:hsqldb:file:" + getChangeLogFile() + ";shutdown=true");
+        hsqldbConfig.setUrl("jdbc:hsqldb:file:work/export/data;shutdown=true");
         hsqldbConfig.setUsername("SA");
         hsqldbConfig.setPassword("");
         hsqldbConfig.setSchema("PUBLIC");
