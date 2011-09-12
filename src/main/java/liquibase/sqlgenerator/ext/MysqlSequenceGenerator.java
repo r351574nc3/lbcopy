@@ -41,10 +41,12 @@ public class MysqlSequenceGenerator extends AbstractSqlGenerator<CreateSequenceS
     public Sql[] generateSql(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
         list.add(new UnparsedSql(String.format(CREATE_SEQUENCE_STATEMENT, statement.getSequenceName())));
+        /* This is already taken care of during data migration
         if (statement.getStartValue() != null) {
             // System.out.println("Got start value " + statement.getStartValue());
             list.add(new UnparsedSql(String.format(SET_START_VALUE_STATEMENT, statement.getSequenceName(), statement.getStartValue())));
         }
+        */
         list.addAll(Arrays.asList(sqlGeneratorChain.generateSql(statement, database)));
 
         return list.toArray(new Sql[list.size()]);
