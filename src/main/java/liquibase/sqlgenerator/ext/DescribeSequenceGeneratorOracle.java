@@ -34,12 +34,12 @@ public class DescribeSequenceGeneratorOracle extends AbstractSqlGenerator<Descri
     }
 
     @Override
-    public ValidationErrors validate(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    public ValidationErrors validate(DescribeSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         return new ValidationErrors();
     }
 
     @Override
-    public Sql[] generateSql(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
+    public Sql[] generateSql(DescribeSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
         list.add(new UnparsedSql("select currval from " + statement.getSequenceName()));
         list.addAll(Arrays.asList(sqlGeneratorChain.generateSql(statement, database)));
