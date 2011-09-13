@@ -22,6 +22,7 @@ import liquibase.serializer.core.xml.XMLChangeLogSerializer;
 import liquibase.snapshot.DatabaseSnapshot;
 import liquibase.statement.DatabaseFunction;
 import liquibase.statement.core.RawSqlStatement;
+import liquibase.statement.ext.DescribeSequenceStatement;
 import liquibase.util.ISODateFormat;
 import liquibase.util.StringUtils;
 import liquibase.util.csv.CSVWriter;
@@ -710,7 +711,9 @@ public class DiffResult {
 			change.setSequenceName(sequence.getName());
 			change.setSchemaName(sequence.getSchema());
             try {
-                change.setStartValue(getStartValue(referenceSnapshot.getDatabase(), sequence.getName()));
+                final DescribeSequenceStatement statement = new DescribeSequenceStatement(sequence.getName());
+                final BigInteger startValue = (BigInteger) ExecutorService.getInstance().getExecutor(referenceSnapshot.getDatabase()).queryForObject(statement, BigInteger.class);
+                change.setStartValue(startValue);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -719,32 +722,6 @@ public class DiffResult {
 			changes.add(generateChangeSet(change));
 		}
 	}
-
-
-    protected BigInteger getStartValue(final Database database, final String sequenceName) throws DatabaseException {
-        final JdbcConnection connection = (JdbcConnection) database.getConnection();
-        BigInteger retval = null;
-        try {
-            final Statement state = connection.createStatement();
-            try {
-                final ResultSet rs = state.executeQuery("select max(id) as \"MAX\" from " + sequenceName);
-                if (rs.next()) {
-                    Object maxVal = rs.getObject(1);
-                    if (maxVal != null) {
-                        retval = new BigInteger(maxVal.toString());
-                    }
-                }
-                rs.close();
-            }
-            finally {
-                state.close();
-            }
-        }
-        catch (Exception e) {
-            throw new DatabaseException(e);
-        }
-        return retval;
-    }
     
 
 	private void addUnexpectedColumnChanges(List<ChangeSet> changes) {
