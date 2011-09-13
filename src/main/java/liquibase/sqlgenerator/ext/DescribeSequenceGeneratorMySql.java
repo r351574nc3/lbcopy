@@ -39,7 +39,7 @@ public class DescribeSequenceGeneratorMySql extends AbstractSqlGenerator<Describ
     @Override
     public Sql[] generateSql(CreateSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
-        list.add(new UnparsedSql("select max(id) as \"MAX\" from " + statement.getSequenceName());
+        list.add(new UnparsedSql("select max(id) as \"MAX\" from " + statement.getSequenceName()));
         list.addAll(Arrays.asList(sqlGeneratorChain.generateSql(statement, database)));
 
         return list.toArray(new Sql[list.size()]);

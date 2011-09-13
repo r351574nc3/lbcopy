@@ -8,7 +8,7 @@ public class DescribeSequenceStatement extends AbstractSqlStatement {
 
     private String sequenceName;
 
-    public CreateSequenceStatement(String sequenceName) {
+    public DescribeSequenceStatement(String sequenceName) {
         this.sequenceName = sequenceName;
     }
 
