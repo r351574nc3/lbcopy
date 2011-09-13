@@ -20,6 +20,10 @@ public class HsqlTypeConverter extends liquibase.database.typeconversion.core.Hs
         if (referenceColumn.getTypeName().toLowerCase().indexOf("text") > -1) {
             return getClobType().getDataTypeName();
         }
+        else if (referenceColumn.getTypeName().toLowerCase().indexOf("varchar") > -1) {
+            return getVarcharType().getDataTypeName();
+        }
+
         return super.convertToDatabaseTypeString(referenceColumn, database);
     }
 }
