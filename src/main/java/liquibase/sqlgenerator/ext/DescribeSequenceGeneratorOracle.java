@@ -41,7 +41,7 @@ public class DescribeSequenceGeneratorOracle extends AbstractSqlGenerator<Descri
     @Override
     public Sql[] generateSql(DescribeSequenceStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
         List<Sql> list = new ArrayList<Sql>();
-        list.add(new UnparsedSql("select currval from " + statement.getSequenceName()));
+        list.add(new UnparsedSql(String.format("select %s.nextval from dual", statement.getSequenceName())));
         list.addAll(Arrays.asList(sqlGeneratorChain.generateSql(statement, database)));
 
         return list.toArray(new Sql[list.size()]);
