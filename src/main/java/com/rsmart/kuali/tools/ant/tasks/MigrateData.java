@@ -315,25 +315,32 @@ public class MigrateData extends Task {
         return retval;
     }
 
+    protected boolean isValidTable(final String tableName) {
+        return !tableName.startsWith("BIN$");
+    }
+
     /**
      * Get a list of table names available mapped to row counts
      */
-    private Map<String, Integer> getTableData(RdbmsConfig source, RdbmsConfig target, Incrementor incrementor) {
+    protected Map<String, Integer> getTableData(RdbmsConfig source, RdbmsConfig target, Incrementor incrementor) {
         Connection sourceConn = openConnection(source);
         Connection targetConn = openConnection(target);
         final Map<String, Integer> retval = new HashMap<String, Integer>();
         final Collection<String> toRemove = new ArrayList<String>();
 
         debug("Looking up table names");
-        
         try {
-            final ResultSet tableResults = sourceConn.getMetaData().getTables(null, source.getSchema(), null, new String[] { "TABLE" });
+            final ResultSet tableResults = sourceConn.getMetaData().getTables(sourceConn.getCatalog(), source.getSchema(), null, new String[] { "TABLE" });
             
             while (tableResults.next()) {
                 final String tableName = tableResults.getString("TABLE_NAME");
+                if (!isValidTable(tableName)) {
+                    continue;
+                }
                 if (tableName.toUpperCase().startsWith(LIQUIBASE_TABLE)) continue;
                 final int rowCount = getTableRecordCount(sourceConn, tableName);
                 incrementor.increment(rowCount);
+                debug("Adding table " + tableName);
                 retval.put(tableName, rowCount);
             }
             tableResults.close();
@@ -354,8 +361,9 @@ public class MigrateData extends Task {
 
         try {
             for (String tableName : retval.keySet()) {
-                final ResultSet tableResults = targetConn.getMetaData().getTables(null, target.getSchema(), null, new String[] { "TABLE" });
+                final ResultSet tableResults = targetConn.getMetaData().getTables(targetConn.getCatalog(), target.getSchema(), null, new String[] { "TABLE" });
                 if (!tableResults.next()) {
+                    log("Removing " + tableName);
                     toRemove.add(tableName);
                 }
                 tableResults.close();

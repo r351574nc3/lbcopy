@@ -87,8 +87,8 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             lbSource.setDefaultSchemaName(source.getSchema());
             lbTarget = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("target")));
             lbTarget.setDefaultSchemaName(target.getSchema());
-
-            exportSchema(lbSource, lbTarget);
+            
+            // exportSchema(lbSource, lbTarget);
             if (isStateSaved()) {
                 exportData(lbSource, lbTarget);
             }
@@ -183,18 +183,17 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         Database hsqldb = null;
         RdbmsConfig hsqldbConfig = new RdbmsConfig();
         hsqldbConfig.setDriver("org.hsqldb.jdbc.JDBCDriver");
-        hsqldbConfig.setUrl("jdbc:hsqldb:file:work/export/data;shutdown=true");
+        hsqldbConfig.setUrl("jdbc:hsqldb:work/export/data;shutdown=true");
         hsqldbConfig.setUsername("SA");
         hsqldbConfig.setPassword("");
         hsqldbConfig.setSchema("PUBLIC");
         getProject().addReference("hsqldb", hsqldbConfig);
+        final DatabaseFactory factory = DatabaseFactory.getInstance();
         try {
-            hsqldb = createDatabaseObject(hsqldbConfig.getDriver(),
-                                          hsqldbConfig.getUrl(),
-                                          hsqldbConfig.getUsername(),
-                                          hsqldbConfig.getPassword(),
-                                          null, "liquibase.database.core.HsqlDatabase");
-            export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
+            hsqldb = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("hsqldb")));
+            hsqldb.setDefaultSchemaName(hsqldbConfig.getSchema());
+            
+            // export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
             ResourceAccessor fsFO = new FileSystemResourceAccessor();
