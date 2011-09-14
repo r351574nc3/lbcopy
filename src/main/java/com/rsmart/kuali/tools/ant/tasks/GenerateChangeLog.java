@@ -88,7 +88,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             lbTarget = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("target")));
             lbTarget.setDefaultSchemaName(target.getSchema());
             
-            // exportSchema(lbSource, lbTarget);
+            exportSchema(lbSource, lbTarget);
             if (isStateSaved()) {
                 exportData(lbSource, lbTarget);
             }
@@ -120,13 +120,13 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             // Finally jar up the hsqldb
             FileSet dbFiles = new FileSet();
             dbFiles.setDir(new File("."));
-            dbFiles.setIncludes(getChangeLogFile() + ".*");
-            dbFiles.setExcludes(getChangeLogFile() + ".lck");
+            dbFiles.setIncludes("work/export/data.*");
+            dbFiles.setExcludes("work/export/data.lck");
             
             Jar jarTask = new Jar();
             jarTask.bindToOwner(this);
             jarTask.init();
-            jarTask.setDestFile(new File(getChangeLogFile() + ".jar"));
+            jarTask.setDestFile(new File("work/export/data.jar"));
             jarTask.addFileset(dbFiles);
             jarTask.execute();
         }
@@ -193,7 +193,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             hsqldb = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("hsqldb")));
             hsqldb.setDefaultSchemaName(hsqldbConfig.getSchema());
             
-            // export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
+            export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
             ResourceAccessor fsFO = new FileSystemResourceAccessor();
@@ -246,16 +246,24 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
 
     private Connection openConnection(RdbmsConfig config) {
         Connection retval = null;
-
-        try {
-            debug("Loading schema " + config.getSchema() + " at url " + config.getUrl());
-            Class.forName(config.getDriver());
-            retval = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
-            retval.setAutoCommit(true);
-            return retval;
+        int retry_count = 0;
+        final int max_retry = 5;
+        while (retry_count < max_retry) {
+            try {
+                debug("Loading schema " + config.getSchema() + " at url " + config.getUrl());
+                Class.forName(config.getDriver());
+                retval = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword());
+                retval.setAutoCommit(true);
+            }
+            catch (Exception e) {
+                if (!e.getMessage().contains("Database lock acquisition failure") && !(e instanceof NullPointerException)) {
+                    throw new BuildException(e);
+                }
+            }
+            finally {
+                retry_count++;
+            }
         }
-        catch (Exception e) {
-            throw new BuildException(e);
-        }
+        return retval;
     }
 }
