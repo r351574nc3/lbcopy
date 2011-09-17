@@ -116,4 +116,5 @@ public class MySQLDatabaseSnapshotGenerator extends liquibase.snapshot.jvm.MySQL
 
         return hasId && count == 1;
     }
+
 }

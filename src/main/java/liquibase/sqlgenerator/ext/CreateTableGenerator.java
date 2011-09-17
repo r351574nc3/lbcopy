@@ -31,7 +31,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
 
     @Override
     public int getPriority() {
-        return 100;
+        return 200;
     }
     
     @Override
@@ -72,9 +72,12 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(" PRIMARY KEY AUTOINCREMENT");
 			}
 
+
             if (statement.getDefaultValue(column) != null) {
                 Object defaultValue = statement.getDefaultValue(column);
-                if (statement.getColumnTypes().get(column).toString().startsWith("DECIMAL")) {
+                
+                if (statement.getColumnTypes().get(column).toString().startsWith("DECIMAL")
+                    || statement.getColumnTypes().get(column).toString().startsWith("NUMERIC")) {
                     int[] bounds = parseBounds(statement.getColumnTypes().get(column).toString());
                     BigDecimal parsedValue = new BigDecimal(defaultValue.toString());
                     
