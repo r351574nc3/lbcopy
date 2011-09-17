@@ -313,8 +313,29 @@ public class MigrateData extends Task {
         return retval;
     }
 
-    protected boolean isValidTable(final String tableName) {
-        return !tableName.startsWith("BIN$");
+    protected boolean isValidTable(final DatabaseMetaData metadata, final String tableName) {
+        return !tableName.startsWith("BIN$") || !isSequence(metadata, tableName);
+    }
+
+    protected boolean isSequence(final DatabaseMetaData metadata, final String tableName) {
+        final RdbmsConfig source = (RdbmsConfig) getProject().getReference(getSource());
+        try {
+            final ResultSet rs = metadata.getColumns(null, source.getSchema(), tableName, null);
+            int columnCount = 0;
+            boolean hasId = false;
+            while (rs.next()) {
+                columnCount++;
+                if ("id".equalsIgnoreCase(rs.getString("COLUMN_NAME"))
+                    && "yes".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"))) {
+                    hasId = true;
+                }
+            }
+                
+            return (columnCount == 1 && hasId);
+        }
+        catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -328,11 +349,12 @@ public class MigrateData extends Task {
 
         debug("Looking up table names");
         try {
-            final ResultSet tableResults = sourceConn.getMetaData().getTables(sourceConn.getCatalog(), source.getSchema(), null, new String[] { "TABLE" });
+            final DatabaseMetaData metadata = sourceConn.getMetaData();
+            final ResultSet tableResults = metadata.getTables(sourceConn.getCatalog(), source.getSchema(), null, new String[] { "TABLE" });
             
             while (tableResults.next()) {
                 final String tableName = tableResults.getString("TABLE_NAME");
-                if (!isValidTable(tableName)) {
+                if (!isValidTable(metadata, tableName)) {
                     continue;
                 }
                 if (tableName.toUpperCase().startsWith(LIQUIBASE_TABLE)) continue;
