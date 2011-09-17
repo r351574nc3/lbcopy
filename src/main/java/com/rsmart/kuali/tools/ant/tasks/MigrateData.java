@@ -325,8 +325,7 @@ public class MigrateData extends Task {
             boolean hasId = false;
             while (rs.next()) {
                 columnCount++;
-                if ("id".equalsIgnoreCase(rs.getString("COLUMN_NAME"))
-                    && "yes".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"))) {
+                if ("yes".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"))) {
                     hasId = true;
                 }
             }
