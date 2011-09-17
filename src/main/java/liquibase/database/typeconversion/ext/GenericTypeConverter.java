@@ -48,7 +48,6 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
     }
 
     public String convertToDatabaseTypeString(Column referenceColumn, Database database) {
-        // System.out.println("Converting " + referenceColumn.getTypeName());
         
         final StringBuilder retval = new StringBuilder();
         try {
@@ -84,38 +83,6 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
             }
         }
         return null;
-    }
-
-    /**
-     * Returns the database-specific datatype for the given column configuration.
-     * This method will convert some generic column types (e.g. boolean, currency) to the correct type
-     * for the current database.
-     */
-    public DataType getDataType(String columnTypeString, Boolean autoIncrement) {
-        // Parse out data type and precision
-        // Example cases: "CLOB", "java.sql.Types.CLOB", "CLOB(10000)", "java.sql.Types.CLOB(10000)
-        String dataTypeName = null;
-        String precision = null;
-        String additionalInformation = null;
-        if (columnTypeString.startsWith("java.sql.Types") && columnTypeString.contains("(")) {
-            precision = columnTypeString.substring(columnTypeString.indexOf("(") + 1, columnTypeString.indexOf(")"));
-            dataTypeName = columnTypeString.substring(columnTypeString.lastIndexOf(".") + 1, columnTypeString.indexOf("("));
-        } else if (columnTypeString.startsWith("java.sql.Types")) {
-            dataTypeName = columnTypeString.substring(columnTypeString.lastIndexOf(".") + 1);
-            if (columnTypeString.indexOf("DECIMAL") < -1) {
-                System.out.println("Looking up " + columnTypeString);
-            }
-        } else if (columnTypeString.contains("(")) {
-            precision = columnTypeString.substring(columnTypeString.indexOf("(") + 1, columnTypeString.indexOf(")"));
-            dataTypeName = columnTypeString.substring(0, columnTypeString.indexOf("("));
-        } else {
-            dataTypeName = columnTypeString;
-        }
-        if (columnTypeString.contains(")")) {
-            additionalInformation = StringUtils.trimToNull(columnTypeString.replaceFirst(".*\\)", ""));
-        }
-
-        return getDataType(columnTypeString, autoIncrement, dataTypeName, precision, additionalInformation);
     }
 
     protected DataType getDataType(String columnTypeString, Boolean autoIncrement, String dataTypeName, String precision, String additionalInformation) {
