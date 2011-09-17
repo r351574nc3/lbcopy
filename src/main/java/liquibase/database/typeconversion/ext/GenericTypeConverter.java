@@ -1,3 +1,28 @@
+// Copyright 2011 Leo Przybylski. All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+//
+//    1. Redistributions of source code must retain the above copyright notice, this list of
+//       conditions and the following disclaimer.
+//
+//    2. Redistributions in binary form must reproduce the above copyright notice, this list
+//       of conditions and the following disclaimer in the documentation and/or other materials
+//       provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+// FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
+// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+// ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+// NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// The views and conclusions contained in the software and documentation are those of the
+// authors and should not be interpreted as representing official policies, either expressed
+// or implied, of Leo Przybylski.
 package liquibase.database.typeconversion.ext;
 
 import liquibase.database.structure.Column;
@@ -13,11 +38,21 @@ import java.sql.Types;
 import java.util.Arrays;
 import java.util.List;
 
+import static liquibase.ext.Constants.EXTENSION_PRIORITY;
 
+
+/**
+ * Converts to and from generic SQL Types (types located in {@link Types}). Conversion happens at 
+ * update and generate phases. All databases are supported because the idea is a generic type
+ * that is a median type and can be used to convert between other types. For example, when exporting
+ * from an Oracle database, can be converted to a MySQL database quickly.
+ * 
+ * @author Leo Przybylski
+ */
 public class GenericTypeConverter extends liquibase.database.typeconversion.core.AbstractTypeConverter {
 
     public int getPriority() {
-        return 1500;
+        return EXTENSION_PRIORITY;
     }
     
     protected static final List<Integer> oneParam = Arrays.asList(
@@ -42,13 +77,19 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
         return new NumberType("NUMERIC");
     }
     
+    /**
+     * Supports all databases, so this always returns true
+     *
+     * @param database (doesn't matter)
+     * @return true always
+     */
     @Override
     public boolean supports(final Database database) {
         return true;
     }
 
-    public String convertToDatabaseTypeString(Column referenceColumn, Database database) {
-        
+    @Override
+    public String convertToDatabaseTypeString(Column referenceColumn, Database database) {        
         final StringBuilder retval = new StringBuilder();
         try {
             retval.append(getSqlTypeName(referenceColumn.getDataType()));
@@ -74,7 +115,18 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
         return retval.toString();
     }
 
-    
+    /**
+     * Convert the type value gotten from the metadata which is a value from {@link Types} to a {@link String} value
+     * that can be used in an SQL statement. Example output:
+     * <ul>
+     *   <li>java.sql.Types.DECIMAL(25,0)</li>
+     *   <li>java.sql.Types.BIGINT</li>
+     *   <li>java.sql.Types.VARCHAR(255)</li>
+     * </ul>
+     *
+     * @param type int value found in {@linK Types}
+     * @return String value including package of the type name.
+     */
     protected String getSqlTypeName(final int type) throws Exception {
         for (final Field field : Types.class.getFields()) {
             final int sql_type = field.getInt(null);
@@ -85,6 +137,7 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
         return null;
     }
 
+    @Override
     protected DataType getDataType(String columnTypeString, Boolean autoIncrement, String dataTypeName, String precision, String additionalInformation) {
         // Translate type to database-specific type, if possible
         DataType returnTypeName = null;
