@@ -905,7 +905,7 @@ public class DiffResult {
 	}
 
 	private void addMissingTableChanges(List<ChangeSet> changes,
-			Database database) {
+                                        Database database) {
 		for (Table missingTable : getMissingTables()) {
 			if (referenceSnapshot.getDatabase().isLiquibaseTable(
 					missingTable.getName())) {

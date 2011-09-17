@@ -154,8 +154,6 @@ public class MigrateData extends Task {
         source.setConnection(sourceDb);
         target.setConnection(targetDb);
         final Map<String, Integer> columns = getColumnMap(source, target, tableName);
-        source.setConnection(null);
-        target.setConnection(null);
 
         if (columns.size() < 1) {
             log("Columns are empty for " + tableName);
@@ -497,13 +495,13 @@ public class MigrateData extends Task {
 
 
                 // If this is an HSQLDB database, then we probably want to turn off logging for permformance
-                if (config.getDriver().contains("hsqldb")) {
+                if (config.getDriver().indexOf("hsqldb") > -1) {
+                    debug("Disabling hsqldb log");
                     final Statement st = retval.createStatement();
                     st.execute("SET FILES LOG FALSE");
                     st.close();
                 }
                 
-                return retval;
             }
             catch (Exception e) {
                 // throw new BuildException(e);
