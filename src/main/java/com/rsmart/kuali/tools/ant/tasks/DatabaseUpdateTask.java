@@ -61,4 +61,23 @@ public class DatabaseUpdateTask extends BaseLiquibaseTask {
             closeDatabase(liquibase);
         }
     }
+
+    protected Liquibase createLiquibase() throws Exception {
+        ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
+        ResourceAccessor fsFO = new FileSystemResourceAccessor();
+
+        Database database = createDatabaseObject(getDriver(), getUrl(), getUsername(), getPassword(), getDefaultSchemaName(), getDatabaseClass());
+
+        String changeLogFile = null;
+        if (getChangeLogFile() != null) {
+            changeLogFile = getChangeLogFile().trim();
+        }
+        Liquibase liquibase = new Liquibase(changeLogFile, new CompositeResourceAccessor(antFO, fsFO), database);
+        liquibase.setCurrentDateTimeFunction(currentDateTimeFunction);
+        for (Map.Entry<String, Object> entry : changeLogProperties.entrySet()) {
+            liquibase.setChangeLogParameter(entry.getKey(), entry.getValue());
+        }
+
+        return liquibase;
+    }
 }

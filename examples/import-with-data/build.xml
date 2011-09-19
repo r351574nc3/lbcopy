@@ -53,6 +53,7 @@
     <property name="initialized" value="true" />
     <property resource="dbcopy.properties" classpathref="dependency.classpath" />
     <property name="credentials.properties" value="credentials.properties" />
+    <property name="changelog.directory" value="changelogs/" />
     <property file="${credentials.properties}" />
     <property name="schema.file.prefix" value="${target.schema}" />
 
