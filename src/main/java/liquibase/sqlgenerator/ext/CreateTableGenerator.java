@@ -25,28 +25,20 @@
 // or implied, of Leo Przybylski.
 package liquibase.sqlgenerator.ext;
 
-import liquibase.database.structure.type.DecimalType;
 import liquibase.database.Database;
-import liquibase.database.typeconversion.TypeConverterFactory;
 import liquibase.database.core.*;
 import liquibase.exception.ValidationErrors;
 import liquibase.logging.LogFactory;
 import liquibase.sql.Sql;
 import liquibase.sql.UnparsedSql;
-import liquibase.sqlgenerator.SqlGenerator;
 import liquibase.sqlgenerator.SqlGeneratorChain;
+import liquibase.statement.AutoIncrementConstraint;
 import liquibase.statement.ForeignKeyConstraint;
 import liquibase.statement.UniqueConstraint;
 import liquibase.statement.core.CreateTableStatement;
 import liquibase.util.StringUtils;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Iterator;
+import java.math.BigDecimal;
 
 import static liquibase.ext.Constants.EXTENSION_PRIORITY;
 
@@ -71,23 +63,41 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
 
     @Override
     public Sql[] generateSql(CreateTableStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
-        StringBuffer buffer = new StringBuffer();
-        
-        buffer.append("CREATE TABLE ").append(database.escapeTableName(null, statement.getTableName())).append(" ");
+            StringBuffer buffer = new StringBuffer();
+        buffer.append("CREATE TABLE ").append(database.escapeTableName(statement.getSchemaName(), statement.getTableName())).append(" ");
         buffer.append("(");
+        
+        boolean isSinglePrimaryKeyColumn = statement.getPrimaryKeyConstraint() != null
+            && statement.getPrimaryKeyConstraint().getColumns().size() == 1;
+        
+        boolean isPrimaryKeyAutoIncrement = false;
+        
         Iterator<String> columnIterator = statement.getColumns().iterator();
         while (columnIterator.hasNext()) {
             String column = columnIterator.next();
-            boolean isAutoIncrement = statement.getAutoIncrementColumns().contains(column);
-
-            buffer.append(database.escapeColumnName(null, statement.getTableName(), column));
+            
+            buffer.append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), column));
             buffer.append(" ").append(statement.getColumnTypes().get(column));
+            
+            AutoIncrementConstraint autoIncrementConstraint = null;
+            
+            for (AutoIncrementConstraint currentAutoIncrementConstraint : statement.getAutoIncrementConstraints()) {
+            	if (column.equals(currentAutoIncrementConstraint.getColumnName())) {
+            		autoIncrementConstraint = currentAutoIncrementConstraint;
+            		break;
+            	}
+            }
 
+            boolean isAutoIncrementColumn = autoIncrementConstraint != null;            
+            boolean isPrimaryKeyColumn = statement.getPrimaryKeyConstraint() != null
+            		&& statement.getPrimaryKeyConstraint().getColumns().contains(column);
+            isPrimaryKeyAutoIncrement = isPrimaryKeyAutoIncrement
+            		|| isPrimaryKeyColumn && isAutoIncrementColumn;
+            
             if ((database instanceof SQLiteDatabase) &&
-					(statement.getPrimaryKeyConstraint()!=null) &&
-					(statement.getPrimaryKeyConstraint().getColumns().size()==1) &&
-					(statement.getPrimaryKeyConstraint().getColumns().contains(column)) &&
-					isAutoIncrement) {
+					isSinglePrimaryKeyColumn &&
+					isPrimaryKeyColumn &&
+					isAutoIncrementColumn) {
             	String pkName = StringUtils.trimToNull(statement.getPrimaryKeyConstraint().getConstraintName());
 	            if (pkName == null) {
 	                pkName = database.generatePrimaryKeyName(statement.getTableName());
@@ -98,7 +108,6 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 }
                 buffer.append(" PRIMARY KEY AUTOINCREMENT");
 			}
-
 
             if (statement.getDefaultValue(column) != null) {
                 Object defaultValue = statement.getDefaultValue(column);
@@ -127,13 +136,16 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(statement.getColumnTypes().get(column).convertObjectToString(defaultValue, database));
             }
 
-            if (isAutoIncrement &&
-					(database.getAutoIncrementClause()!=null) &&
-					(!database.getAutoIncrementClause().equals(""))) {
+            if (isAutoIncrementColumn) {
+            	// TODO: check if database supports auto increment on non primary key column
                 if (database.supportsAutoIncrement()) {
-                    buffer.append(" ").append(database.getAutoIncrementClause()).append(" ");
+                	String autoIncrementClause = database.getAutoIncrementClause(autoIncrementConstraint.getStartWith(), autoIncrementConstraint.getIncrementBy());
+                
+                	if (!"".equals(autoIncrementClause)) {
+                		buffer.append(" ").append(autoIncrementClause);
+                	}
                 } else {
-                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(null, statement.getTableName())));
+                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(statement.getSchemaName(), statement.getTableName())));
                 }
             }
 
@@ -145,10 +157,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 }
             }
 
-            if ((database instanceof InformixDatabase) &&
-					(statement.getPrimaryKeyConstraint()!=null) &&
-					(statement.getPrimaryKeyConstraint().getColumns().size()==1) &&
-					(statement.getPrimaryKeyConstraint().getColumns().contains(column))) {
+            if (database instanceof InformixDatabase && isSinglePrimaryKeyColumn) {
             	buffer.append(" PRIMARY KEY");
             }
 
@@ -161,13 +170,11 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
 
         // TODO informixdb
         if (!( (database instanceof SQLiteDatabase) &&
-				(statement.getPrimaryKeyConstraint()!=null) &&
-				(statement.getPrimaryKeyConstraint().getColumns().size()==1) &&
-				statement.getAutoIncrementColumns().contains(statement.getPrimaryKeyConstraint().getColumns().get(0)) ) &&
+				isSinglePrimaryKeyColumn &&
+				isPrimaryKeyAutoIncrement) &&
 
 				!((database instanceof InformixDatabase) &&
-				(statement.getPrimaryKeyConstraint()!=null) &&
-				(statement.getPrimaryKeyConstraint().getColumns().size()==1)
+				isSinglePrimaryKeyColumn
 				)) {
         	// ...skip this code block for sqlite if a single column primary key
         	// with an autoincrement constraint exists.
@@ -206,8 +213,11 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(database.escapeConstraintName(fkConstraint.getForeignKeyName()));
         	}
             String referencesString = fkConstraint.getReferences();
+            if (!referencesString.contains(".") && database.getDefaultSchemaName() != null) {
+                referencesString = database.getDefaultSchemaName()+"."+referencesString;
+            }
             buffer.append(" FOREIGN KEY (")
-                    .append(database.escapeColumnName(null, statement.getTableName(), fkConstraint.getColumn()))
+                    .append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), fkConstraint.getColumn()))
                     .append(") REFERENCES ")
                     .append(referencesString);
 

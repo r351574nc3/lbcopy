@@ -85,7 +85,7 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
      */
     @Override
     public boolean supports(final Database database) {
-        return true;
+        return !(database instanceof liquibase.database.core.MySQLDatabase);
     }
 
     @Override
@@ -203,5 +203,10 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
 
          return returnTypeName;
     }
+
+	@Override
+	public BooleanType getBooleanType() {
+		return new BooleanType.NumericBooleanType("java.sql.Types.BOOLEAN");
+	}
 
 }

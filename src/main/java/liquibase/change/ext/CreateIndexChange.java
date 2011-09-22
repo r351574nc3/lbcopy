@@ -41,7 +41,7 @@ import static liquibase.ext.Constants.EXTENSION_PRIORITY;
  *
  * @author Leo Przybylski (leo [at] rsmart.com)
  */
-public class CreateIndexChange extends liquibase.change.core.CreateIndexChange implements ChangeWithColumns {
+public class CreateIndexChange extends liquibase.change.core.CreateIndexChange {
 
     public CreateIndexChange() {
         setPriority(EXTENSION_PRIORITY);
