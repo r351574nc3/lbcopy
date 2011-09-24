@@ -64,7 +64,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
     @Override
     public Sql[] generateSql(CreateTableStatement statement, Database database, SqlGeneratorChain sqlGeneratorChain) {
             StringBuffer buffer = new StringBuffer();
-        buffer.append("CREATE TABLE ").append(database.escapeTableName(statement.getSchemaName(), statement.getTableName())).append(" ");
+        buffer.append("CREATE TABLE ").append(database.escapeTableName(null, statement.getTableName())).append(" ");
         buffer.append("(");
         
         boolean isSinglePrimaryKeyColumn = statement.getPrimaryKeyConstraint() != null
@@ -76,7 +76,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
         while (columnIterator.hasNext()) {
             String column = columnIterator.next();
             
-            buffer.append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), column));
+            buffer.append(database.escapeColumnName(null, statement.getTableName(), column));
             buffer.append(" ").append(statement.getColumnTypes().get(column));
             
             AutoIncrementConstraint autoIncrementConstraint = null;
@@ -145,7 +145,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 		buffer.append(" ").append(autoIncrementClause);
                 	}
                 } else {
-                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(statement.getSchemaName(), statement.getTableName())));
+                    LogFactory.getLogger().warning(database.getTypeName()+" does not support autoincrement columns as request for "+(database.escapeTableName(null, statement.getTableName())));
                 }
             }
 
@@ -213,11 +213,8 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(database.escapeConstraintName(fkConstraint.getForeignKeyName()));
         	}
             String referencesString = fkConstraint.getReferences();
-            if (!referencesString.contains(".") && database.getDefaultSchemaName() != null) {
-                referencesString = database.getDefaultSchemaName()+"."+referencesString;
-            }
             buffer.append(" FOREIGN KEY (")
-                    .append(database.escapeColumnName(statement.getSchemaName(), statement.getTableName(), fkConstraint.getColumn()))
+                    .append(database.escapeColumnName(null, statement.getTableName(), fkConstraint.getColumn()))
                     .append(") REFERENCES ")
                     .append(referencesString);
 
