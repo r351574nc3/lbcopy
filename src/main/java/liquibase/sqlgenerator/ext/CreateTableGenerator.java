@@ -299,7 +299,7 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
             }
             else {
                 retval[0] = Integer.parseInt(decimal.substring(decimal.indexOf("(") + 1, comma));
-                retval[1] = Integer.parseInt(comma + 1, decimal.indexOf(")")));
+                retval[1] = Integer.parseInt(decimal.substring(comma + 1, decimal.indexOf(")")));
             }
         }
         catch (StringIndexOutOfBoundsException e) {
