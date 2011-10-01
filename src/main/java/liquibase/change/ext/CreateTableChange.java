@@ -60,6 +60,11 @@ public class CreateTableChange extends liquibase.change.core.CreateTableChange {
 
     public SqlStatement[] generateStatements(Database database) {
         final SqlStatement[] retval = super.generateStatements(database);
+        for (final SqlStatement statement : retval) {
+            for (final DataType type : ((CreateTableStatement) statement).getColumnTypes().values()) {
+                System.out.println("Found column type: " + type);
+            }
+        }
         return retval;
     }
 }
