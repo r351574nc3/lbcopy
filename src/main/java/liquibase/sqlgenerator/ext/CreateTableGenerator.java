@@ -290,8 +290,22 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
     
     protected int[] parseBounds(final String decimal) {
         final int[] retval = new int[2];
-        retval[0] = Integer.parseInt(decimal.substring(decimal.indexOf("(") + 1, decimal.indexOf(",")));
-        retval[1] = Integer.parseInt(decimal.substring(decimal.indexOf(",") + 1, decimal.indexOf(")")));
+        int comma = decimal.indexOf(",");
+
+        try {
+            if (comma < 0) {
+                retval[0] = Integer.parseInt(decimal.substring(decimal.indexOf("(") + 1, decimal.length() - 2));
+                retval[1] = 0;
+            }
+            else {
+                retval[0] = Integer.parseInt(decimal.substring(decimal.indexOf("(") + 1, comma));
+                retval[1] = Integer.parseInt(comma + 1, decimal.indexOf(")")));
+            }
+        }
+        catch (StringIndexOutOfBoundsException e) {
+            System.out.println("parsebounds " + decimal);
+            throw e;
+        }
         return retval;
     }
 }
