@@ -115,20 +115,18 @@ public class MigrateData extends Task {
 
         for (final String tableName : tableData.keySet()) {
             debug("Migrating table " + tableName + " with " + tableData.get(tableName) + " records");
-            if (!(tableName.toUpperCase().startsWith(LIQUIBASE_TABLE) && tableData.get(tableName) > 0)) {
-                if (threadCount < MAX_THREADS) {
-                    new Thread(new Runnable() {
-                            public void run() {
-                                threadCount++;
-                                migrate(source, target, tableName, observable);
-                                threadCount--;
-                            }
-                        }).start();
-                }
-                else {
-                    final Map<String,Integer> columns = new HashMap<String, Integer>();
-                    migrate(source, target, tableName, observable);
-                }
+            if (threadCount < MAX_THREADS) {
+                new Thread(new Runnable() {
+                        public void run() {
+                            threadCount++;
+                            migrate(source, target, tableName, observable);
+                            threadCount--;
+                        }
+                    }).start();
+            }
+            else {
+                final Map<String,Integer> columns = new HashMap<String, Integer>();
+                migrate(source, target, tableName, observable);
             }
         }
         try {
@@ -256,7 +254,7 @@ public class MigrateData extends Task {
                     targetDb.commit();
                     if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = targetDb.createStatement();
-                        // st.execute("CHECKPOINT"); 
+                        st.execute("CHECKPOINT"); 
                         st.close();
                     }
                     toStatement.close();
@@ -314,7 +312,7 @@ public class MigrateData extends Task {
     }
 
     protected boolean isValidTable(final DatabaseMetaData metadata, final String tableName) {
-        return !(tableName.startsWith("BIN$") || isSequence(metadata, tableName));
+        return !(tableName.startsWith("BIN$") || tableName.toUpperCase().startsWith(LIQUIBASE_TABLE) || isSequence(metadata, tableName));
     }
 
     protected boolean isSequence(final DatabaseMetaData metadata, final String tableName) {
@@ -358,6 +356,9 @@ public class MigrateData extends Task {
                 }
                 if (tableName.toUpperCase().startsWith(LIQUIBASE_TABLE)) continue;
                 final int rowCount = getTableRecordCount(sourceConn, tableName);
+                if (rowCount < 1) { // no point in going through tables with no data
+                    
+                }
                 incrementor.increment(rowCount);
                 debug("Adding table " + tableName);
                 retval.put(tableName, rowCount);
