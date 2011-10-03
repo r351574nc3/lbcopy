@@ -314,7 +314,7 @@ public class MigrateData extends Task {
     }
 
     protected boolean isValidTable(final DatabaseMetaData metadata, final String tableName) {
-        return !(tableName.startsWith("BIN$") && isSequence(metadata, tableName));
+        return !(tableName.startsWith("BIN$") || isSequence(metadata, tableName));
     }
 
     protected boolean isSequence(final DatabaseMetaData metadata, final String tableName) {
