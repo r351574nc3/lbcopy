@@ -16,10 +16,10 @@
    specific language governing permissions and limitations
    under the License.    
 -->
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all"
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="lbcopy" default="migrate-all-parent"
           xmlns:lbcopy="antlib:com.rsmart.kuali.tools.lbcopy"
           xmlns:lb="antlib:org.liquibase">
-  <target name="init">
+  <target name="init" unless="initialized">
     <property file="resources/build.properties" />
 
     <property name="ivy.install.version" value="2.0.0-beta1"/>
@@ -27,6 +27,7 @@
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar"/>
     <property name="build.dir" value="build"/>
     <property name="src.dir" value="src"/>
+    <antcall target="download-ivy" inheritAll="true" />
     
     <path id="ivy.lib.path">
       <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
@@ -35,12 +36,6 @@
     
     
     <ivy:cachepath pathid="dependency.classpath" conf="default" />
-    <!--
-  <path id="dependency.classpath">
-      <fileset dir="${lib.directory}" includes="**/*.jar" />
-      <fileset dir="lib" includes="**/*.jar" />
-    </path>
-    -->
 
     <taskdef uri="antlib:org.liquibase" 
              resource="liquibasetasks.properties"
@@ -54,15 +49,19 @@
 
   </target>
   
-  <target name="db-init" depends="init,resolve">
+  <target name="db-init" depends="init" unless="initialized">
+    <property name="initialized" value="true" />
     <property resource="dbcopy.properties" classpathref="dependency.classpath" />
     <property name="credentials.properties" value="credentials.properties" />
+    <property name="changelog.directory" value="changelogs/" />
     <property file="${credentials.properties}" />
+    <property name="schema.file.prefix" value="${target.schema}" />
 
     <path id="liquibase.classpath">
-      <dirset dir="${changelog.directory}" includes="**/*" />
+      <fileset dir="${changelog.directory}" includes="*.jar" />
     </path>
-  
+
+    <!--
     <fail unless="source.url">source.url not set</fail>
     <fail unless="source.driver">source.driver not set</fail>    
     <fail unless="source.username">source.username not set</fail>
@@ -71,6 +70,7 @@
     <fail unless="target.driver">target.driver not set</fail>    
     <fail unless="target.username">target.username not set</fail>
     <fail unless="target.password">target.password not set</fail>    
+    -->
 
     <lbcopy:rdbmsConfig       id="source"
                              url="${source.url}"
@@ -103,18 +103,24 @@
        />
   </target>
   
-  <target name="export-all" depends="db-init,clean">
+  <target name="export-all" depends="db-init,clean" unless="export.unnecessary">
     <property name="stateSaved" value="true" />
     <mkdir dir="work/export/" />
     <lbcopy:generateChangeLog source="source" target="target" 
                        stateSaved="${stateSaved}"
                        changeLogFile="work/export/${target.username}"
                        classpathref="liquibase.classpath" />
+
+    <move todir="${changelog.directory}">
+      <fileset dir="work/export/">
+        <include name="**/*" />
+      </fileset>
+    </move>
   </target>
 
   <target name="migrate-tables" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-tab.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-tab.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -122,7 +128,7 @@
        classpathref="liquibase.classpath"
        />
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-idx.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-idx.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -133,7 +139,7 @@
 
   <target name="migrate-views" depends="db-init">
     <lb:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-vw.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-vw.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -144,7 +150,7 @@
 
   <target name="migrate-sequences" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-seq.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-seq.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -157,7 +163,7 @@
 
   <target name="migrate-constraints" depends="db-init">
     <lbcopy:updateDatabase
-       changeLogFile="${changelog.directory}${target.username}-cst.xml"
+       changeLogFile="${changelog.directory}${schema.file.prefix}-cst.xml"
        driver="${target.driver}"
        url="${lb.database.url}"
        username="${lb.database.username}"
@@ -172,6 +178,13 @@
 
   <target name="migrate-all" depends="migrate-schema, migrate-data, migrate-constraints" />
 
+  <target name="migrate-all-parent" depends="db-init">
+    <property name="stateSaved" value="false" />
+    <available file="${changelog.directory}${target.username}-tab.xml" property="export.unnecessary" />
+    <antcall target="export-all" inheritAll="true" inheritRefs="true" />
+    <antcall target="migrate-all" inheritAll="true" inheritRefs="true" />
+  </target>
+
   <target name="download-ivy" unless="skip.download">
     <mkdir dir="${ivy.jar.dir}"/>
     <!--
@@ -179,6 +192,7 @@
     -->
     <echo message="installing ivy..."/>
     <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
+    <property name="skip.download" value="true" />
   </target>
 
     <!-- ================================= 
