@@ -109,6 +109,12 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
                 buffer.append(" PRIMARY KEY AUTOINCREMENT");
 			}
 
+            // No default for mysql date
+            if ((database instanceof MySQLDatabase) 
+                && statement.getColumnTypes().get(column).toString().startsWith("DATE")) {
+                statement.getDefaultValues().put(column, null);
+            }
+
             if (statement.getDefaultValue(column) != null) {
                 Object defaultValue = statement.getDefaultValue(column);
                 
@@ -277,6 +283,10 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
             } else {
                 sql += " TABLESPACE " + statement.getTablespace();
             }
+        }
+
+        if (database instanceof MySQLDatabase) {
+            sql += " ENGINE = InnoDB ";
         }
 
         return new Sql[] {
