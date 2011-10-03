@@ -35,6 +35,7 @@ import liquibase.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.sql.Types;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,7 +77,18 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
     public NumberType getNumberType() {
         return new NumberType("NUMERIC");
     }
-    
+
+    @Override
+    public Object convertDatabaseValueToObject(Object value, int databaseDataType, int firstParameter, int secondParameter, Database database) throws ParseException {
+        if (value == null) {
+            return null;
+        } else if (value instanceof String) {
+            return convertToCorrectObjectType(((String) value).trim().replaceFirst("^'", "").replaceFirst("'$", ""), databaseDataType, firstParameter, secondParameter, database);
+        } else {
+            return value;
+        }
+    }
+
     /**
      * Supports all databases, so this always returns true
      *
@@ -206,7 +218,6 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
 
 	@Override
 	public BooleanType getBooleanType() {
-		return new BooleanType.NumericBooleanType("java.sql.Types.BOOLEAN");
+		return new BooleanType.NumericBooleanType(getNumberType().getDataTypeName());
 	}
-
 }

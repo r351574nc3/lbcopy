@@ -112,8 +112,9 @@ public class CreateTableGenerator extends liquibase.sqlgenerator.core.CreateTabl
             if (statement.getDefaultValue(column) != null) {
                 Object defaultValue = statement.getDefaultValue(column);
                 
-                if (statement.getColumnTypes().get(column).toString().startsWith("DECIMAL")
-                    || statement.getColumnTypes().get(column).toString().startsWith("NUMERIC")) {
+                if ((statement.getColumnTypes().get(column).toString().startsWith("DECIMAL")
+                     || statement.getColumnTypes().get(column).toString().startsWith("NUMERIC"))
+                    && !"null".equalsIgnoreCase(defaultValue.toString())) {
                     int[] bounds = parseBounds(statement.getColumnTypes().get(column).toString());
                     BigDecimal parsedValue = new BigDecimal(defaultValue.toString());
                     
