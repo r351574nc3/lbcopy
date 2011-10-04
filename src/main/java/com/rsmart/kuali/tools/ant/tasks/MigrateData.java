@@ -109,7 +109,7 @@ public class MigrateData extends Task {
         float recordVisitor = 0;
         final ProgressObserver progressObserver = new ProgressObserver(recordCountIncrementor.getValue(),
                                                                        48f, 48f/100,
-                                                                       "\r|%s%s| %s%% (%d/%d) records");
+                                                                       "\r|%s%s| %3d%% (%d/%d) records");
         final ProgressObservable observable = new ProgressObservable();
         observable.addObserver(progressObserver);
 
@@ -195,6 +195,7 @@ public class MigrateData extends Task {
                     }
                     
                     boolean retry = true;
+                    int retry_count = 0;
                     while(retry) {
                         try {
                             toStatement.execute();
@@ -214,6 +215,13 @@ public class MigrateData extends Task {
                             }
                             else if (sqle.getMessage().contains("IN or OUT")) {
                                 log("Column count was " + columns.keySet().size());
+                            }
+                            else if (sqle.getMessage().contains("Error reading")) {
+                                if (retry_count > 5) {
+                                    log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                    retry = false;
+                                }
+                                retry_count++;
                             }
                             else {
                                 sqle.printStackTrace();
@@ -576,7 +584,7 @@ public class MigrateData extends Task {
         private String template;
         private float count;
         private PrintStream out;
-        private int last = 0;
+        private int last;
         
         public ProgressObserver(final float total,
                                 final float length,
@@ -587,6 +595,7 @@ public class MigrateData extends Task {
             this.ratio    = ratio;
             this.length   = length;
             this.count    = 0;
+            this.last     = count;
 
             try {
                 final Field field = Main.class.getDeclaredField("out");
@@ -614,9 +623,9 @@ public class MigrateData extends Task {
             }
 
             int cidx = 0;
-            String[] carr = new String[] {"|", "\\", "-", "/"};
-            if (count > last + 25) {
-                last = count;
+            final String[] carr = new String[] {"|", "\\", "-", "/"};
+            if (count > (last + 125)) {
+                last = (int) count;
                 cidx++;
 
                 if (cidx == carr.length) {

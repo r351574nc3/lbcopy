@@ -114,10 +114,11 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             migrateTask.bindToOwner(this);
             migrateTask.init();
             migrateTask.setSource(getSource());
-            migrateTask.setTarget("hsqldb");
+            migrateTask.setTarget("derby");
             migrateTask.execute();
             
             // Finally jar up the hsqldb
+            /*
             FileSet dbFiles = new FileSet();
             dbFiles.setDir(new File("."));
             dbFiles.setIncludes("work/export/data.*");
@@ -129,6 +130,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             jarTask.setDestFile(new File("work/export/data.jar"));
             jarTask.addFileset(dbFiles);
             jarTask.execute();
+            */
         }
     }
 
@@ -180,27 +182,28 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
 
 
     private void exportData(Database source, Database target) {
-        Database hsqldb = null;
-        RdbmsConfig hsqldbConfig = new RdbmsConfig();
-        hsqldbConfig.setDriver("org.hsqldb.jdbc.JDBCDriver");
-        hsqldbConfig.setUrl("jdbc:hsqldb:work/export/data;shutdown=true");
-        hsqldbConfig.setUsername("SA");
-        hsqldbConfig.setPassword("");
-        hsqldbConfig.setSchema("PUBLIC");
-        getProject().addReference("hsqldb", hsqldbConfig);
+        Database derbydb = null;
+        RdbmsConfig derbyConfig = new RdbmsConfig();
+        derbConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
+        derbyConfig.setUrl("jdbc:derby:data;create=true");
+        derbyConfig.setUsername("");
+        derbyConfig.setPassword("");h
+        derbyConfig.setSchema("");
+        getProject().addReference("derby", derbyConfig);
+        
         final DatabaseFactory factory = DatabaseFactory.getInstance();
         try {
-            hsqldb = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("hsqldb")));
-            hsqldb.setDefaultSchemaName(hsqldbConfig.getSchema());
+            derbydb = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("derby")));
+            derbydb.setDefaultSchemaName(derbyConfig.getSchema());
             
-            export(new Diff(source, getDefaultSchemaName()), hsqldb, "tables", "-dat.xml");
+            export(new Diff(source, getDefaultSchemaName()), derbydb, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
             ResourceAccessor fsFO = new FileSystemResourceAccessor();
             
             String changeLogFile = getChangeLogFile() + "-dat.xml";
 
-            Liquibase liquibase = new Liquibase(changeLogFile, new CompositeResourceAccessor(antFO, fsFO), hsqldb);
+            Liquibase liquibase = new Liquibase(changeLogFile, new CompositeResourceAccessor(antFO, fsFO), derbydb);
 
             log("Loading Schema");
             liquibase.update(getContexts());
@@ -212,9 +215,9 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         } 
         finally {
             try {
-                if (hsqldb != null) {
+                if (derbydb != null) {
                     // hsqldb.getConnection().createStatement().execute("SHUTDOWN");
-                    log("Closing hsqldb database");
+                    log("Closing derby database");
                     hsqldb.close();
                 }
             }
