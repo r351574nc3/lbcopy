@@ -187,7 +187,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         derbConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
         derbyConfig.setUrl("jdbc:derby:data;create=true");
         derbyConfig.setUsername("");
-        derbyConfig.setPassword("");h
+        derbyConfig.setPassword("");
         derbyConfig.setSchema("");
         getProject().addReference("derby", derbyConfig);
         
