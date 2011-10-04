@@ -109,7 +109,7 @@ public class MigrateData extends Task {
         float recordVisitor = 0;
         final ProgressObserver progressObserver = new ProgressObserver(recordCountIncrementor.getValue(),
                                                                        48f, 48f/100,
-                                                                       "\r|%s%%| %s (%d/%d) records");
+                                                                       "\r|%s%s| %s%% (%d/%d) records");
         final ProgressObservable observable = new ProgressObservable();
         observable.addObserver(progressObserver);
 
@@ -239,7 +239,7 @@ public class MigrateData extends Task {
                 try {
                     if (sourceDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = sourceDb.createStatement();
-                        // st.execute("CHECKPOINT"); 
+                        st.execute("CHECKPOINT"); 
                         st.close();
                     }
                     fromStatement.close();
@@ -252,7 +252,7 @@ public class MigrateData extends Task {
             if (targetDb != null) {
                 try {
                     targetDb.commit();
-                    if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
+                    if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsql")) {
                         Statement st = targetDb.createStatement();
                         st.execute("CHECKPOINT"); 
                         st.close();
@@ -576,6 +576,7 @@ public class MigrateData extends Task {
         private String template;
         private float count;
         private PrintStream out;
+        private int last = 0;
         
         public ProgressObserver(final float total,
                                 final float length,
@@ -611,8 +612,19 @@ public class MigrateData extends Task {
             for (int x = progress; x < length; x++) {
                 progressBuffer.append(' ');
             }
-            
-            out.print(String.format(template, progressBuffer, percent, (int) count, (int) total));
+
+            int cidx = 0;
+            String[] carr = new String[] {"|", "\\", "-", "/"};
+            if (count > last + 25) {
+                last = count;
+                cidx++;
+
+                if (cidx == carr.length) {
+                    cidx = 0;
+                }
+            }
+
+            out.print(String.format(template, progressBuffer, carr[cidx], percent, (int) count, (int) total));
             /*
             if ((count % 5000) == 0 || count == total) {
                 out.print(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
