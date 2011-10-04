@@ -184,7 +184,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
     private void exportData(Database source, Database target) {
         Database derbydb = null;
         RdbmsConfig derbyConfig = new RdbmsConfig();
-        derbConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
+        derbyConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
         derbyConfig.setUrl("jdbc:derby:data;create=true");
         derbyConfig.setUsername("");
         derbyConfig.setPassword("");
@@ -218,7 +218,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
                 if (derbydb != null) {
                     // hsqldb.getConnection().createStatement().execute("SHUTDOWN");
                     log("Closing derby database");
-                    hsqldb.close();
+                    derbydb.close();
                 }
             }
             catch (Exception e) {

@@ -595,7 +595,7 @@ public class MigrateData extends Task {
             this.ratio    = ratio;
             this.length   = length;
             this.count    = 0;
-            this.last     = count;
+            this.last     = (int) count;
 
             try {
                 final Field field = Main.class.getDeclaredField("out");
