@@ -49,11 +49,12 @@ import static liquibase.ext.Constants.EXTENSION_PRIORITY;
  * from an Oracle database, can be converted to a MySQL database quickly.
  * 
  * @author Leo Przybylski
+ * @Deprecated 
  */
 public class GenericTypeConverter extends liquibase.database.typeconversion.core.AbstractTypeConverter {
 
     public int getPriority() {
-        return EXTENSION_PRIORITY;
+        return -1 * EXTENSION_PRIORITY;
     }
     
     protected static final List<Integer> oneParam = Arrays.asList(
@@ -78,16 +79,6 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
         return new NumberType("NUMERIC");
     }
 
-    @Override
-    public Object convertDatabaseValueToObject(Object value, int databaseDataType, int firstParameter, int secondParameter, Database database) throws ParseException {
-        if (value == null) {
-            return null;
-        } else if (value instanceof String) {
-            return convertToCorrectObjectType(((String) value).trim().replaceFirst("^'", "").replaceFirst("'$", ""), databaseDataType, firstParameter, secondParameter, database);
-        } else {
-            return value;
-        }
-    }
 
     /**
      * Supports all databases, so this always returns true
@@ -100,121 +91,6 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
         return !(database instanceof liquibase.database.core.MySQLDatabase);
     }
 
-    @Override
-    public String convertToDatabaseTypeString(Column referenceColumn, Database database) {        
-        final StringBuilder retval = new StringBuilder();
-        try {
-            retval.append(getSqlTypeName(referenceColumn.getDataType()));
-        }
-        catch (Exception e) {
-            retval.append(referenceColumn.getTypeName());
-        }
-
-        
-        final boolean hasOneParam  = oneParam.contains(referenceColumn.getDataType());
-        final boolean hasTwoParams = twoParams.contains(referenceColumn.getDataType());
-        
-
-        if (hasOneParam || hasTwoParams) {
-            retval.append("(").append(referenceColumn.getColumnSize());
-            if (hasTwoParams) {
-                retval.append(",").append(referenceColumn.getDecimalDigits());
-            }
-            retval.append(")");
-        }
-
-        
-        return retval.toString();
-    }
-
-    /**
-     * Convert the type value gotten from the metadata which is a value from {@link Types} to a {@link String} value
-     * that can be used in an SQL statement. Example output:
-     * <ul>
-     *   <li>java.sql.Types.DECIMAL(25,0)</li>
-     *   <li>java.sql.Types.BIGINT</li>
-     *   <li>java.sql.Types.VARCHAR(255)</li>
-     * </ul>
-     *
-     * @param type int value found in {@linK Types}
-     * @return String value including package of the type name.
-     */
-    protected String getSqlTypeName(final int type) throws Exception {
-        for (final Field field : Types.class.getFields()) {
-            final int sql_type = field.getInt(null);
-            if (type == sql_type) {
-                return "java.sql.Types." + field.getName();
-            }
-        }
-        return null;
-    }
-
-    @Override
-    protected DataType getDataType(String columnTypeString, Boolean autoIncrement, String dataTypeName, String precision, String additionalInformation) {
-        // Translate type to database-specific type, if possible
-        DataType returnTypeName = null;
-        if (dataTypeName.equalsIgnoreCase("BIGINT")) {
-            returnTypeName = getBigIntType();
-        } else if (dataTypeName.equalsIgnoreCase("NUMBER") 
-                   || dataTypeName.equalsIgnoreCase("DECIMAL")
-                   || dataTypeName.equalsIgnoreCase("NUMERIC")) {
-            returnTypeName = getNumberType();
-        } else if (dataTypeName.equalsIgnoreCase("BLOB")) {
-            returnTypeName = getBlobType();
-        } else if (dataTypeName.equalsIgnoreCase("BOOLEAN")) {
-            returnTypeName = getBooleanType();
-        } else if (dataTypeName.equalsIgnoreCase("CHAR")) {
-            returnTypeName = getCharType();
-        } else if (dataTypeName.equalsIgnoreCase("CLOB")) {
-            returnTypeName = getClobType();
-        } else if (dataTypeName.equalsIgnoreCase("CURRENCY")) {
-            returnTypeName = getCurrencyType();
-        } else if (dataTypeName.equalsIgnoreCase("DATE") || dataTypeName.equalsIgnoreCase(getDateType().getDataTypeName())) {
-            returnTypeName = getDateType();
-        } else if (dataTypeName.equalsIgnoreCase("DATETIME") || dataTypeName.equalsIgnoreCase(getDateTimeType().getDataTypeName())) {
-            returnTypeName = getDateTimeType();
-        } else if (dataTypeName.equalsIgnoreCase("DOUBLE")) {
-            returnTypeName = getDoubleType();
-        } else if (dataTypeName.equalsIgnoreCase("FLOAT")) {
-            returnTypeName = getFloatType();
-        } else if (dataTypeName.equalsIgnoreCase("INT")) {
-            returnTypeName = getIntType();
-        } else if (dataTypeName.equalsIgnoreCase("INTEGER")) {
-            returnTypeName = getIntType();
-        } else if (dataTypeName.equalsIgnoreCase("LONGBLOB")) {
-            returnTypeName = getLongBlobType();
-        } else if (dataTypeName.equalsIgnoreCase("LONGVARBINARY")) {
-            returnTypeName = getBlobType();
-        } else if (dataTypeName.equalsIgnoreCase("LONGVARCHAR")) {
-            returnTypeName = getClobType();
-        } else if (dataTypeName.equalsIgnoreCase("SMALLINT")) {
-            returnTypeName = getSmallIntType();
-        } else if (dataTypeName.equalsIgnoreCase("TEXT")) {
-            returnTypeName = getClobType();
-        } else if (dataTypeName.equalsIgnoreCase("TIME") || dataTypeName.equalsIgnoreCase(getTimeType().getDataTypeName())) {
-            returnTypeName = getTimeType();
-        } else if (dataTypeName.toUpperCase().contains("TIMESTAMP")) {
-            returnTypeName = getDateTimeType();
-        } else if (dataTypeName.equalsIgnoreCase("TINYINT")) {
-            returnTypeName = getTinyIntType();
-        } else if (dataTypeName.equalsIgnoreCase("UUID")) {
-            returnTypeName = getUUIDType();
-        } else if (dataTypeName.equalsIgnoreCase("VARCHAR")) {
-            returnTypeName = getVarcharType();
-        } else if (dataTypeName.equalsIgnoreCase("NVARCHAR")) {
-            returnTypeName = getNVarcharType();
-        } else {
-            return new CustomType(columnTypeString,0,2);
-        }
-
-        if (returnTypeName == null) {
-            throw new UnexpectedLiquibaseException("Could not determine " + dataTypeName + " for " + this.getClass().getName());
-        }
-        addPrecisionToType(precision, returnTypeName);
-        returnTypeName.setAdditionalInformation(additionalInformation);
-
-         return returnTypeName;
-    }
 
 	@Override
 	public BooleanType getBooleanType() {
