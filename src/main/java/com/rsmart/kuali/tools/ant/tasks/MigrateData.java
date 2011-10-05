@@ -633,11 +633,11 @@ public class MigrateData extends Task {
             }
             int roll = (int) (count / (total / 1000));
 
-            if (System.getProperty("run_from_ant") == null) {
+            if (getProject().getProperty("run_from_ant") == null) {
                 out.print(String.format(template, progressBuffer, carr[roll % carr.length], percent, (int) count, (int) total));
             }
             else if ((count % 5000) == 0 || count == total) {
-                out.print(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
+                out.println(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
             }
         }
     }
