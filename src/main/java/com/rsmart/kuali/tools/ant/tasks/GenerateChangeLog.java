@@ -185,7 +185,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         Database derbydb = null;
         RdbmsConfig derbyConfig = new RdbmsConfig();
         derbyConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
-        derbyConfig.setUrl("jdbc:derby:data;create=true");
+        derbyConfig.setUrl("jdbc:derby:work/export/data;create=true");
         derbyConfig.setUsername("");
         derbyConfig.setPassword("");
         derbyConfig.setSchema("");
@@ -222,7 +222,9 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
                 }
             }
             catch (Exception e) {
-                e.printStackTrace();
+                if (!(e instanceof java.sql.SQLNonTransientConnectionException)) {
+                    e.printStackTrace();
+                }
             }
 
         }
