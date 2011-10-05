@@ -27,7 +27,6 @@ package liquibase.database.typeconversion.ext;
 
 import liquibase.database.Database;
 import liquibase.database.structure.Column;
-import liquibase.database.core.DerbyDatabase;
 import liquibase.database.structure.type.*;
 import liquibase.exception.UnexpectedLiquibaseException;
 import liquibase.util.StringUtils;
@@ -45,7 +44,7 @@ import static liquibase.ext.Constants.EXTENSION_PRIORITY;
  *
  * @author Leo Przybylski
  */ 
-public class DerbyTypeConverter  extends liquibase.database.typeconversion.core.DerbyTypeConverter {
+public class H2TypeConverter extends liquibase.database.typeconversion.core.H2TypeConverter {
     protected static final List<Integer> oneParam = Arrays.asList(
         Types.CHAR,
         -15, // Types.NCHAR in java 1.6,
