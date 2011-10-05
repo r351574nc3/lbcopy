@@ -27,8 +27,12 @@ import liquibase.integration.ant.AntResourceAccessor;
 import liquibase.integration.ant.BaseLiquibaseTask;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
+import liquibase.database.core.H2Database;
 import liquibase.database.jvm.JdbcConnection;
 import org.apache.tools.ant.BuildException;
+
+import org.h2.tools.Backup;
+import org.h2.tools.DeleteDbFiles;
 
 import com.rsmart.kuali.tools.liquibase.Diff;
 import com.rsmart.kuali.tools.liquibase.DiffResult;
@@ -38,6 +42,7 @@ import java.io.PrintStream;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 
 import static org.apache.tools.ant.Project.MSG_DEBUG;
 
@@ -93,6 +98,11 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
                 exportData(lbSource, lbTarget);
             }
             
+            if (lbTarget instanceof H2Database) {
+                final Statement st = ((JdbcConnection) lbTarget.getConnection()).createStatement();
+                st.execute("SHUTDOWN DEFRAG");
+            }
+            
         } catch (Exception e) {
             throw new BuildException(e);
         } finally {
@@ -114,23 +124,17 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             migrateTask.bindToOwner(this);
             migrateTask.init();
             migrateTask.setSource(getSource());
-            migrateTask.setTarget("derby");
+            migrateTask.setTarget("h2");
             migrateTask.execute();
-            
-            // Finally jar up the hsqldb
-            /*
-            FileSet dbFiles = new FileSet();
-            dbFiles.setDir(new File("."));
-            dbFiles.setIncludes("work/export/data.*");
-            dbFiles.setExcludes("work/export/data.lck");
-            
-            Jar jarTask = new Jar();
-            jarTask.bindToOwner(this);
-            jarTask.init();
-            jarTask.setDestFile(new File("work/export/data.jar"));
-            jarTask.addFileset(dbFiles);
-            jarTask.execute();
-            */
+            try {
+                Backup.execute("work/export/data.zip", "work/export", "", true);
+                
+                // delete the old database files
+                DeleteDbFiles.execute("split:22:work/export", "data", true);
+            }
+            catch (Exception e) {
+                throw new BuildException(e);
+            }
         }
     }
 
@@ -182,28 +186,28 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
 
 
     private void exportData(Database source, Database target) {
-        Database derbydb = null;
-        RdbmsConfig derbyConfig = new RdbmsConfig();
-        derbyConfig.setDriver("org.apache.derby.jdbc.EmbeddedDriver");
-        derbyConfig.setUrl("jdbc:derby:work/export/data;create=true");
-        derbyConfig.setUsername("");
-        derbyConfig.setPassword("");
-        derbyConfig.setSchema("");
-        getProject().addReference("derby", derbyConfig);
+        Database h2db = null;
+        RdbmsConfig h2Config = new RdbmsConfig();
+        h2Config.setDriver("org.h2.Driver");
+        h2Config.setUrl("jdbc:h2:split:22:work/export/data");
+        h2Config.setUsername("SA");
+        h2Config.setPassword("");
+        h2Config.setSchema("PUBLIC");
+        getProject().addReference("h2", h2Config);
         
         final DatabaseFactory factory = DatabaseFactory.getInstance();
         try {
-            derbydb = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("derby")));
-            derbydb.setDefaultSchemaName(derbyConfig.getSchema());
+            h2db = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("h2")));
+            h2db.setDefaultSchemaName(h2Config.getSchema());
             
-            export(new Diff(source, getDefaultSchemaName()), derbydb, "tables", "-dat.xml");
+            export(new Diff(source, getDefaultSchemaName()), h2db, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
             ResourceAccessor fsFO = new FileSystemResourceAccessor();
             
             String changeLogFile = getChangeLogFile() + "-dat.xml";
 
-            Liquibase liquibase = new Liquibase(changeLogFile, new CompositeResourceAccessor(antFO, fsFO), derbydb);
+            Liquibase liquibase = new Liquibase(changeLogFile, new CompositeResourceAccessor(antFO, fsFO), h2db);
 
             log("Loading Schema");
             liquibase.update(getContexts());
@@ -215,10 +219,10 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         } 
         finally {
             try {
-                if (derbydb != null) {
+                if (h2db != null) {
                     // hsqldb.getConnection().createStatement().execute("SHUTDOWN");
-                    log("Closing derby database");
-                    derbydb.close();
+                    log("Closing h2 database");
+                    h2db.close();
                 }
             }
             catch (Exception e) {
