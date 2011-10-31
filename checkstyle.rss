@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<rss version="0.91">
+  <channel>
+    <title>Liquibase Database Copy Ant tasks - Checkstyle report</title>
+    <link>../../../../github.com/thub.com/r351574nc3/lbcopy</link>
+    <description>Liquibase Database Copy Ant tasks - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2011 The Kuali Foundation</copyright>
+    <item>
+      <title>File: 12,
+             Errors: 3401,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html</link>
+      <description>
+        <p>Click <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.liquibase.XMLChangeLogSAXHandler.java">com/rsmart/kuali/tools/liquibase/XMLChangeLogSAXHandler.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  866
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.DropAllTask.java">com/rsmart/kuali/tools/ant/tasks/DropAllTask.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  22
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.RdbmsConfig.java">com/rsmart/kuali/tools/ant/tasks/RdbmsConfig.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  42
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.liquibase.DiffResult.java">com/rsmart/kuali/tools/liquibase/DiffResult.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  1355
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.MigrateData.java">com/rsmart/kuali/tools/ant/tasks/MigrateData.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  263
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.LiquibaseSetup.java">com/rsmart/kuali/tools/ant/tasks/LiquibaseSetup.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.DatabaseUpdateTask.java">com/rsmart/kuali/tools/ant/tasks/DatabaseUpdateTask.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  14
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.Include.java">com/rsmart/kuali/tools/ant/tasks/Include.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  6
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.liquibase.Diff.java">com/rsmart/kuali/tools/liquibase/Diff.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  627
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.TableSet.java">com/rsmart/kuali/tools/ant/tasks/TableSet.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  32
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.liquibase.XMLChangeLogParser.java">com/rsmart/kuali/tools/liquibase/XMLChangeLogParser.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  36
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="../../../../github.com/thub.com/r351574nc3/lbcopy/checkstyle.html#com.rsmart.kuali.tools.ant.tasks.GenerateChangeLog.java">com/rsmart/kuali/tools/ant/tasks/GenerateChangeLog.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  124
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+
