@@ -111,7 +111,22 @@ width: 100%;
 </script>
 <script type="text/javascript">
 if (window.jstiming) window.jstiming.load.tick('headEnd');
-</script></head>
+</script>
+      <!-- Google Analytics -->
+    <script type="text/javascript">
+    
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-16006964-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+  </head>
 <body class='html not-front not-logged-in no-sidebars page-node page-node- page-node-236 node-type-subpage stalker'>
 <div id='skip-link'>
 <a class='element-invisible element-focusable' href='#main-menu'>Jump to Navigation</a>
@@ -216,7 +231,7 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
 <!-- primary message -->
 <div class='breadcrumb'>
 <a href='/' title='Kuali.org'>Kuali.org</a><span class='active'>blogs</span></div>
-<h1>kualigan [ËkÉÊËÉËlÉªgÉn]</h1>
+<img src="images/kualigan.png" /><br />
 <div class='field field-name-field-intro field-type-text-long field-label-hidden'>
 <div class='field-items'>
 <div class='field-item even'><p>n. <i>Slang</i> a rough lawless young <a href='http://www.kuali.org'>Kuali</a> developer.<br/>
@@ -231,11 +246,11 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
 <div class='block block-block first last odd' id='block-block-8'>
 <div class='content'>
 <ul>
-<li><a href='http://www.kuali.org/contact'>Contact</a></li>
-<li><a href='http://www.kuali.org/rice/faq'>FAQ</a></li>
-<li><a href='http://www.kuali.org/news/rice'>News</a></li>
-<li><a href='http://www.kuali.org/resources/documentation'>Documentation</a></li>
-<li><a href='http://www.kuali.org/rice/download'>All Versions</a></li>
+<li><a href="leo.html">Leo</a></li>
+<li><a href="http://kualigan.blogspot.com">Kualigan</a></li>
+<li><a href="team-list.html">Team</a></li>
+<li><a href="documentation">Documentation</a></li>
+<li><a href="https://github.com/r351574nc3/">All Versions</a></li>
 </ul>
 </div>
 </div><!-- /.block -->
@@ -251,7 +266,7 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
 <div class='region region-midnav'>
 <div class='block block-block first odd' id='block-block-5'>
 <div class='content'>
-<!--<p class='highlight'><span><a href='/download'>Download</a><br/><a href='/test-drives'>Test Drive</a></span></p> -->
+<p class="highlight"><span><a href="https://github.com/r351574nc3/lbcopy/tarball/master">Download</a><br/><a href="http://www.github.com/r351574nc3/">Git Hub</a></span></p>
 </div>
 </div><!-- /.block -->
 <div class='block block-menu-block last even' id='block-menu-block-3'>
@@ -262,13 +277,13 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
                     <a href="index.html" title="Overview">Overview</a>
     </li>
                           <li class="leaf menu-mlid-680">
-                    <a href="plugin-info.html" title="Goals">Goals</a>
-    </li>
-                          <li class="leaf menu-mlid-680">
                     <a href="usage.html" title="Usage">Usage</a>
     </li>
                           <li class="leaf menu-mlid-680">
-                    <a href="examples/" title="Examples">Examples</a>
+                    <a href="apidocs/" title="API">API</a>
+    </li>
+                          <li class="leaf menu-mlid-680">
+                    <a href="screencasts.html" title="Screencasts">Screencasts</a>
     </li>
                                           <li class="leaf menu-mlid-680">
                     <a href="project-info.html" title="Project Information">Project Information</a>
@@ -296,7 +311,7 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
      field-label-hidden'><div class='field-items'><div class='field-item
                                                        even'
                                                        property='content:encoded'>
-      <p>Welcome to the Sample Project, we hope you enjoy your time on this project site. We've tried to assemble some great user documentation and developer information, and we're really excited that you've taken the time to visit this site.</p><div class="section"><h2>What is Sample Project<a name="What_is_Sample_Project"></a></h2><p>Well, it's easy enough to explain. This sample project is a sample of a project with a Maven-generated site from Maven: The Definitive Guide. A dedicated team of volunteers help maintain this sample site, and so on and so forth.</p></div>
+      <p>Welcome to the lbcopy Project, we hope you enjoy your time on this project site. We've tried to assemble some great user documentation and developer information, and we're really excited that you've taken the time to visit this site.</p><div class="section"><h2>What is lbcopy<a name="What_is_lbcopy"></a></h2><p>This is a collection of ant tasks that used for copying (migrating) changes from one database to another using liquibase. The goal of this project is to provide an out-of-the-box reference implementation for projects to use liquibase for migrating data in their build processes.</p></div><div class="section"><h2>Why Ant<a name="Why_Ant"></a></h2><p>Ant seemed like a clear enough solution because so many Kuali projects are already using it. Further, though Ant is used, this project uses Ivy. This way, maven can be levereged to build the ant tasks and handle dependencies at runtime. This way, we're not actually at a disadvantage with Ivy.</p></div><div class="section"><h2>Anything else<a name="Anything_else"></a></h2><p>Since we're using Liquibase, we are utilizing the extension infrastructure as heavily as possible. lbcopy does make minor modifications to the Liquibase codebase to function easier and simplify configuration. However, one of the core ideals is to modify as little as possible, and develop extensions for others to use within the Liquibase community itself.</p><p>That is why we have developed a companion project called lbext. Check that one out as well.</p><p>Please have a look around. We've got some great examples around here</p></div>
 </div>
 
 </div></div>			</div>
