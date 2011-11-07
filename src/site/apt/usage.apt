@@ -4,7 +4,7 @@ Exporting
 
 ** Creating the credentials.properties
 
-%{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/export-no-data/credentials.properties}
+%{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/export-with-data/credentials.properties}
 
 Migrating
 
