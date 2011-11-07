@@ -1,12 +1,40 @@
-Importing
+Using the Examples
 
-Exporting
+* Importing
+
+** Creating the credentials.properties
+
+%{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/import-with-data/credentials.properties}
+
++--------------------------------------------------------+
+leo@behemoth~/projects/git/lbcopy/examples/import-with-data
+(15:34:01) [176] ls changelogs/
+data.jar	schema-cst.xml	schema-seq.xml	schema-vw.xml	test-dat.xml	test2-cst.xml	test2-seq.xml	test2-vw.xml
+data.zip	schema-idx.xml	schema-tab.xml	schema.jar	test.jar	test2-idx.xml	test2-tab.xml
++--------------------------------------------------------+
+
+** Running the ant build.xml
+
+  Open a shell to the project directory/examples/import-with-data
+
++--------------------------------------------------------+
+% ant -Dchangelog.directory=changelogs/   migrate
++--------------------------------------------------------+
+
+
+* Exporting
 
 ** Creating the credentials.properties
 
 %{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/export-with-data/credentials.properties}
 
-Migrating
+** Running the ant build.xml
+
++--------------------------------------------------------+
+% ant -Dchangelog.directory=changelogs/   export
++--------------------------------------------------------+
+
+* Migrating
 
 ** Creating the credentials.properties
 
@@ -25,6 +53,7 @@ target.username: test
 target.password: test                                                            
 +--------------------------------------------------------+
 
+
 ** Running the ant build.xml
 
   Open a shell to the project directory/examples/import-with-data
@@ -32,3 +61,5 @@ target.password: test
 +--------------------------------------------------------+
 % ant -Dchangelog.directory=changelogs/                                             
 +--------------------------------------------------------+
+
+Using the Tasks
