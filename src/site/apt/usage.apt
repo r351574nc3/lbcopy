@@ -1,0 +1,34 @@
+Importing
+
+Exporting
+
+** Creating the credentials.properties
+
+%{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/export-no-data/credentials.properties}
+
+Migrating
+
+** Creating the credentials.properties
+
++--------------------------------------------------------+
+target.driver: com.mysql.jdbc.Driver
+target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
+target.url: jdbc:mysql://localhost:3306/TEM
+target.schema: TEM
+target.username: TEM
+target.password: TEM                                                            
+target.driver: com.mysql.jdbc.Driver
+target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
+target.url: jdbc:mysql://localhost:3306/test2
+target.schema: test2
+target.username: test
+target.password: test                                                            
++--------------------------------------------------------+
+
+** Running the ant build.xml
+
+  Open a shell to the project directory/examples/import-with-data
+
++--------------------------------------------------------+
+% ant -Dchangelog.directory=changelogs/                                             
++--------------------------------------------------------+

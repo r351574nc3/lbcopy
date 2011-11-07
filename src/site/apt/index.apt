@@ -1,0 +1,34 @@
+  Welcome to the lbcopy Project, we hope you enjoy your time
+on this project site.  We've tried to assemble some
+great user documentation and developer information, and
+we're really excited that you've taken the time to visit
+this site.
+
+What is lbcopy
+
+  This is a collection of ant tasks that used for copying (migrating)
+changes from one database to another using liquibase. The goal of this
+project is to provide an out-of-the-box reference implementation for
+projects to use liquibase for migrating data in their build processes.
+
+Why Ant
+
+  Ant seemed like a clear enough solution because so many Kuali
+projects are already using it. Further, though Ant is used, this
+project uses Ivy. This way, maven can be levereged to build the ant
+tasks and handle dependencies at runtime. This way, we're not actually
+at a disadvantage with Ivy.
+
+Anything else
+
+  Since we're using Liquibase, we are utilizing the extension
+infrastructure as heavily as possible. lbcopy does make minor
+modifications to the Liquibase codebase to function easier and
+simplify configuration. However, one of the core ideals is to modify
+as little as possible, and develop extensions for others to use
+within the Liquibase community itself.
+
+  That is why we have developed a companion project called
+lbext. Check that one out as well.
+
+  Please have a look around. We've got some great examples around here
