@@ -13,15 +13,15 @@
 	<name>Liquibase Database Copy Ant tasks</name>
 	<version>1.0.0</version>
 	<description></description>
-	<url></url>
+	<url>http://r351574nc3.github.com/lbcopy/</url>
 	<organization>
-		<name>The Kuali Foundation</name>
-		<url>http://kuali.org</url>
+		<name>Leo Przybylski</name>
+		<url>http://kualigan.blogspot.com</url>
 	</organization>
 
 	<licenses>
 		<license>
-			<name>The Kuali Foundation Educational Community License 2.0</name>
+			<name>Leo Przybylski Educational Community License 2.0</name>
 			<url>http://www.opensource.org/licenses/ecl2.txt</url>
 			<distribution>manual</distribution>
 		</license>
@@ -31,7 +31,7 @@
       <developer>
         <id>leo</id>
         <name>Leo Przybylski</name>
-        <email>r351574nc3@gmail.com</email>
+        <email>leo@rsmart.com</email>
         <url>http://kualigan.blogspot.com</url>
         <organization>rsmart</organization>
         <organizationUrl>http://www.rsmart.com</organizationUrl>
@@ -103,6 +103,7 @@
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven-site-plugin.version}</version>
           <configuration>
+            <generateReports>false</generateReports>
             <reportPlugins>
               <plugin>
                 <artifactId>maven-changelog-plugin</artifactId>
@@ -225,7 +226,7 @@
     </dependencies>
 
     <scm>
-      <connection>scm:git:git://github.com/r351574nc3/lbcopy.git</connection>
+      <connection>scm:git:git://github.comr351574nc3/lbcopy.git</connection>
       <developerConnection>scm:git:git://github.com/r351574nc3/lbcopy.git</developerConnection>
       <url>http://www.github.com/r351574nc3/lbcopy</url>
     </scm>
@@ -233,7 +234,7 @@
     <distributionManagement>
       <site>
         <id>github-project-site</id>
-        <url>gitsite:git@github.com/r351574nc3/lbcopy</url>
+        <url>gitsite:http://www.github.com/r351574nc3/lbcopy</url>
       </site>
     </distributionManagement>
 </project>
