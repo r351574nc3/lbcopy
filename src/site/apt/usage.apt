@@ -4,14 +4,8 @@ Using the Examples
 
 ** Creating the credentials.properties
 
-%{snippet|id=exportcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/import-with-data/credentials.properties}
+%{snippet|id=importcred1|url=https://raw.github.com/r351574nc3/lbcopy/master/examples/import-with-data/credentials.properties}
 
-+--------------------------------------------------------+
-leo@behemoth~/projects/git/lbcopy/examples/import-with-data
-(15:34:01) [176] ls changelogs/
-data.jar	schema-cst.xml	schema-seq.xml	schema-vw.xml	test-dat.xml	test2-cst.xml	test2-seq.xml	test2-vw.xml
-data.zip	schema-idx.xml	schema-tab.xml	schema.jar	test.jar	test2-idx.xml	test2-tab.xml
-+--------------------------------------------------------+
 
 ** Running the ant build.xml
 
@@ -21,6 +15,16 @@ data.zip	schema-idx.xml	schema-tab.xml	schema.jar	test.jar	test2-idx.xml	test2-t
 % ant -Dchangelog.directory=changelogs/   migrate
 +--------------------------------------------------------+
 
+  The <<migrate>> task will migrate files in the <<changelogs/>> path that are prefixed with the schema name. For example:
+
++--------------------------------------------------------+
+leo@behemoth~/projects/git/lbcopy/examples/import-with-data
+(15:34:01) [176] ls changelogs/
+data.jar	schema-cst.xml	schema-seq.xml	schema-vw.xml	test-dat.xml	test2-cst.xml	test2-seq.xml	test2-vw.xml
+data.zip	schema-idx.xml	schema-tab.xml	schema.jar	test.jar	test2-idx.xml	test2-tab.xml
++--------------------------------------------------------+
+
+  the test2 files will be imported.
 
 * Exporting
 
