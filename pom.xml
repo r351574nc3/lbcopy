@@ -94,6 +94,7 @@
       <taglist-maven-plugin.version>2.4</taglist-maven-plugin.version>
       <versions-maven-plugin.version>1.2</versions-maven-plugin.version>
       <xml-maven-plugin.version>1.0-beta-3</xml-maven-plugin.version>
+      <lbcopy-site.generateReports>true</lbcopy-site.generateReports>
     </properties>
     
 	<build>
@@ -103,7 +104,7 @@
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven-site-plugin.version}</version>
           <configuration>
-            <generateReports>false</generateReports>
+            <generateReports>${lbcopy-site.generateReports}</generateReports>
             <reportPlugins>
               <plugin>
                 <artifactId>maven-changelog-plugin</artifactId>
@@ -234,7 +235,7 @@
     <distributionManagement>
       <site>
         <id>github-project-site</id>
-        <url>gitsite:http://www.github.com/r351574nc3/lbcopy</url>
+        <url>gitsite:git@github.com/r351574nc3/lbcopy</url>
       </site>
     </distributionManagement>
 </project>
