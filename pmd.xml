@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pmd version="4.2.5" timestamp="2011-11-07T11:32:59.986">
+<pmd version="4.2.5" timestamp="2011-11-07T11:47:06.431">
 <file name="/Users/leo/projects/git/lbcopy/src/main/java/com/rsmart/kuali/tools/liquibase/XMLChangeLogParser.java">
 <violation beginline="29" endline="29" begincolumn="1" endcolumn="40" rule="UnusedImports" ruleset="Import Statement Rules" package="com.rsmart.kuali.tools.liquibase" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
 Avoid unused imports such as 'liquibase.parser.ChangeLogParser'
