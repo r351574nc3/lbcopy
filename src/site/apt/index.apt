@@ -1,0 +1,19 @@
+  Welcome to the rsmart-lb-extensions Project, we hope you enjoy your time
+on this project site.  We've tried to assemble some
+great user documentation and developer information, and
+we're really excited that you've taken the time to visit
+this site.
+
+What is rsmart-lb-extensions
+
+  This project consists of a set of
+{{{http://www.liquibase.org}Liquibase}} extensions that allow
+liquibase to work in a more database agnostic way. Currently,
+Liquibase depends knowing the type of the database to use database
+specific refactoring critera. This is usually unnecessary, and is
+especially the case for {{{http://www.kuali.org}Kuali}} projects due
+to the use of an ORM and the need for database agnostic systems. These
+extensions allow {{{http://www.liquibase.org}Liquibase}} to function
+almost entirely via JDBC instead of SQL. 
+
+  rsmart-lb-extensions is a dependency of {{{http://r351574nc3.github.com/lbcopy}rsmart-lb-ant}}

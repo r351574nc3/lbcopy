@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/DECORATION/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.1.0 http://maven.apache.org/xsd/decoration-1.1.0.xsd"
+  name="Liquibase Copy Plugin">
+    <bannerLeft>
+        <name>Kuali</name>
+        <src>images/kuali_commercial.png</src>
+        <href>http://www.kuali.org</href>
+    </bannerLeft>
+
+    <skin>
+      <artifactId>maven-kuali-skin</artifactId>
+      <groupId>org.kuali.maven.skins</groupId>
+      <version>0.0.1</version>
+    </skin>
+
+    <body>
+        <menu name="rSmart Liquibase Extensions">
+          <item name="Overview" href="index.html"/>
+          <item name="Usage" href="usage.html"/>
+          <item name="API" href="apidocs/"/>
+          <item name="Screencasts" href="screencasts.html"/>
+        </menu>        
+        <menu ref="reports" />
+
+    </body>
+    <poweredBy>
+      <logo name="Maven" href="http://maven.apache.org/"
+            img="http://maven.apache.org/images/logos/maven-feather.png"/>
+    </poweredBy>
+</project>
