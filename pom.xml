@@ -12,11 +12,11 @@
 	<packaging>jar</packaging>
 	<name>Liquibase Extensions</name>
 	<version>1.0.0</version>
-	<description></description>
-	<url></url>
+	<description>Extensions to liquibase that make it more database agnostic</description>
+	<url>http://r351574nc3.github.com/lbext</url>
 	<organization>
-		<name>The Kuali Foundation</name>
-		<url>http://kuali.org</url>
+		<name>Leo Przybylski</name>
+		<url>http://kualigan.blogspot.com</url>
 	</organization>
 
     <developers>
@@ -211,7 +211,7 @@
     <scm>
       <connection>scm:git:git://github.com/r351574nc3/lbext.git</connection>
       <developerConnection>scm:git:git://github.com/r351574nc3/lbext.git</developerConnection>
-      <url>http://www.github.com/r351574nc3/lbcopy</url>
+      <url>http://www.github.com/r351574nc3/lbext</url>
     </scm>
     
     <distributionManagement>
