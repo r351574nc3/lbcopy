@@ -276,7 +276,7 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
                                 <li class="leaf menu-mlid-680">
                     <a href="index.html" title="Overview">Overview</a>
     </li>
-                          <li class="leaf active-trail active menu-mlid-680">
+                          <li class="leaf menu-mlid-680">
                     <a href="usage.html" title="Usage">Usage</a>
     </li>
                           <li class="leaf menu-mlid-680">
@@ -311,45 +311,7 @@ if (window.jstiming) window.jstiming.load.tick('headEnd');
      field-label-hidden'><div class='field-items'><div class='field-item
                                                        even'
                                                        property='content:encoded'>
-      <div class="section"><h2>Using the Examples<a name="Using_the_Examples"></a></h2><div class="section"><h3>Importing<a name="Importing"></a></h3><div class="section"><h4>Creating the credentials.properties<a name="Creating_the_credentials.properties"></a></h4><div class="source"><pre>source.driver: org.hsqldb.jdbc.JDBCDriver
-source.classpath: ./lib/hsqldb-2.2.4.jar
-source.url: jdbc:hsqldb:res:work/export/data;shutdown=true
-source.schema: PUBLIC
-source.username: SA
-source.password: 
-target.driver: com.mysql.jdbc.Driver
-target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
-target.url: jdbc:mysql://localhost:3306/test2
-target.schema: test2
-target.username: test
-target.password: test
-</pre></div></div><div class="section"><h4>Running the ant build.xml<a name="Running_the_ant_build.xml"></a></h4><p>Open a shell to the project directory/examples/import-with-data</p><div class="source"><pre>% ant -Dchangelog.directory=changelogs/   migrate</pre></div><p>The <b>migrate</b> task will migrate files in the <b>changelogs/</b> path that are prefixed with the schema name. For example:</p><div class="source"><pre>leo@behemoth~/projects/git/lbcopy/examples/import-with-data
-(15:34:01) [176] ls changelogs/
-data.jar        schema-cst.xml  schema-seq.xml  schema-vw.xml   test-dat.xml    test2-cst.xml   test2-seq.xml   test2-vw.xml
-data.zip        schema-idx.xml  schema-tab.xml  schema.jar      test.jar        test2-idx.xml   test2-tab.xml</pre></div><p>the test2 files will be imported.</p></div></div><div class="section"><h3>Exporting<a name="Exporting"></a></h3><div class="section"><h4>Creating the credentials.properties<a name="Creating_the_credentials.properties"></a></h4><div class="source"><pre>source.driver: com.mysql.jdbc.Driver
-source.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
-source.url: jdbc:mysql://localhost:3306/TEM
-source.schema: TEM
-source.username: TEM
-source.password: TEMPORARY
-target.driver: com.mysql.jdbc.Driver
-target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
-target.url: jdbc:mysql://localhost:3306/kfs_cloud
-target.schema: kfs_cloud
-target.username: TEM
-target.password: TEMPORARY
-</pre></div></div><div class="section"><h4>Running the ant build.xml<a name="Running_the_ant_build.xml"></a></h4><div class="source"><pre>% ant -Dchangelog.directory=changelogs/   export</pre></div></div></div><div class="section"><h3>Migrating<a name="Migrating"></a></h3><div class="section"><h4>Creating the credentials.properties<a name="Creating_the_credentials.properties"></a></h4><div class="source"><pre>target.driver: com.mysql.jdbc.Driver
-target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
-target.url: jdbc:mysql://localhost:3306/TEM
-target.schema: TEM
-target.username: TEM
-target.password: TEM                                                            
-target.driver: com.mysql.jdbc.Driver
-target.classpath: ./lib/mysql-connector-java-5.1.14-bin.jar
-target.url: jdbc:mysql://localhost:3306/test2
-target.schema: test2
-target.username: test
-target.password: test                                                            </pre></div></div><div class="section"><h4>Running the ant build.xml<a name="Running_the_ant_build.xml"></a></h4><p>Open a shell to the project directory/examples/import-with-data</p><div class="source"><pre>% ant -Dchangelog.directory=changelogs/                                             </pre></div></div></div></div><div class="section"><h2>Using the Tasks<a name="Using_the_Tasks"></a></h2></div>
+      <div class="section"><h2>Leo (r351574nc3/kualigan)<a name="Leo_r351574nc3kualigan"></a></h2><div class="section"><h3>About Leo is the Rice Release Manager.<a name="About_Leo_is_the_Rice_Release_Manager."></a></h3></div><div class="section"><h3><a class="externalLink" href="http://kualigan.blogspot.com/p/resume_25.html">Resume</a><a name="Resume"></a></h3></div></div>
 </div>
 
 </div></div>			</div>
