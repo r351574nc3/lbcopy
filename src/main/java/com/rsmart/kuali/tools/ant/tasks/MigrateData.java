@@ -75,6 +75,12 @@ public class MigrateData extends Task {
     private String target;
     private int threadCount;
 
+    private static int openCursors = 0;
+    private static int stOpened = 0;
+    private static int stClosed = 0;
+    private static int rsOpened = 0;
+    private static int rsClosed = 0;
+
     public MigrateData() { 
         int threadCount = 1;
     }
@@ -118,6 +124,7 @@ public class MigrateData extends Task {
 
         for (final String tableName : tableData.keySet()) {
             debug("Migrating table " + tableName + " with " + tableData.get(tableName) + " records");
+            /*
             if (tgroup.activeCount() < MAX_THREADS) {
                 new Thread(tgroup, new Runnable() {
                         public void run() {
@@ -126,9 +133,10 @@ public class MigrateData extends Task {
                     }).start();
             }
             else {
+            */
                 final Map<String,Integer> columns = new HashMap<String, Integer>();
                 migrate(source, target, tableName, observable);
-            }
+                // }
         }
 
         // Wait for other threads to finish
@@ -144,6 +152,8 @@ public class MigrateData extends Task {
             final Connection targetDb = openConnection(target);
             if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                 Statement st = targetDb.createStatement();
+                stOpened++;
+                status(this);
                 st.execute("CHECKPOINT"); 
                 st.close();
             }
@@ -170,6 +180,8 @@ public class MigrateData extends Task {
         }
 
         PreparedStatement toStatement = prepareStatement(targetDb, tableName, columns);
+        stOpened++;
+        status(this);
         Statement fromStatement = null;
 
         final boolean hasClob = columns.values().contains(Types.CLOB);
@@ -177,8 +189,12 @@ public class MigrateData extends Task {
         
         try {
             fromStatement = sourceDb.createStatement();
+            stOpened++;
+            status(this);
 
             final ResultSet results = fromStatement.executeQuery(String.format(SELECT_ALL_QUERY, tableName));
+            rsOpened++;
+            status(this);
             while (results.next()) {
                 try {
                     toStatement.clearParameters();
@@ -258,10 +274,16 @@ public class MigrateData extends Task {
                 try {
                     if (sourceDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = sourceDb.createStatement();
+                        stOpened++;
+                        status(this);
                         st.execute("CHECKPOINT"); 
                         st.close();
+                        stClosed++;
+                        status(this);
                     }
                     fromStatement.close();
+                    stClosed++;
+                    status(this);
                     sourceDb.close();
                 }
                 catch (Exception e) {
@@ -273,10 +295,16 @@ public class MigrateData extends Task {
                     targetDb.commit();
                     if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsql")) {
                         Statement st = targetDb.createStatement();
+                        stOpened++;
+                        status(this);
                         st.execute("CHECKPOINT"); 
                         st.close();
+                        stClosed++;
+                        status(this);
                     }
                     toStatement.close();
+                    stClosed++;
+                    status(this);
                     targetDb.close();
                 }
                 catch (Exception e) {
@@ -305,6 +333,8 @@ public class MigrateData extends Task {
         final String statement = getStatementBuffer(tableName, columns);
         
         try {
+            stOpened++;
+            status(this);
             return conn.prepareStatement(statement);
         }
         catch (Exception e) {
@@ -338,16 +368,28 @@ public class MigrateData extends Task {
         final RdbmsConfig source = (RdbmsConfig) getProject().getReference(getSource());
         try {
             final ResultSet rs = metadata.getColumns(null, source.getSchema(), tableName, null);
+            rsOpened++;
+            status(this);
             int columnCount = 0;
             boolean hasId = false;
-            while (rs.next()) {
-                columnCount++;
-                if ("yes".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"))) {
-                    hasId = true;
+            try {
+                while (rs.next()) {
+                    columnCount++;
+                    if ("yes".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"))) {
+                        hasId = true;
+                    }
                 }
             }
-                
-            return (columnCount == 1 && hasId);
+            finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    }
+                    catch (Exception e) {
+                    }
+                }
+                return (columnCount == 1 && hasId);
+            }
         }
         catch (Exception e) {
             return false;
@@ -367,7 +409,7 @@ public class MigrateData extends Task {
         try {
             final DatabaseMetaData metadata = sourceConn.getMetaData();
             final ResultSet tableResults = metadata.getTables(sourceConn.getCatalog(), source.getSchema(), null, new String[] { "TABLE" });
-            
+            rsOpened++;
             while (tableResults.next()) {
                 final String tableName = tableResults.getString("TABLE_NAME");
                 if (!isValidTable(metadata, tableName)) {
@@ -383,6 +425,7 @@ public class MigrateData extends Task {
                 retval.put(tableName, rowCount);
             }
             tableResults.close();
+            rsClosed++;
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -401,11 +444,15 @@ public class MigrateData extends Task {
         try {
             for (String tableName : retval.keySet()) {
                 final ResultSet tableResults = targetConn.getMetaData().getTables(targetConn.getCatalog(), target.getSchema(), null, new String[] { "TABLE" });
+                rsOpened++;
+                status(this);
                 if (!tableResults.next()) {
                     log("Removing " + tableName);
                     toRemove.add(tableName);
                 }
                 tableResults.close();
+                rsClosed++;
+                status(this);
             }
         }
         catch (Exception e) {
@@ -436,7 +483,11 @@ public class MigrateData extends Task {
         final Collection<String> toRemove = new ArrayList<String>();
         try {
             final Statement state = targetDb.createStatement();                
+            stOpened++;
+            status(this);
             final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
+            rsOpened++;
+            status(this);
             final ResultSetMetaData metadata = altResults.getMetaData();
             
             for (int i = 1; i <= metadata.getColumnCount(); i++) {
@@ -444,7 +495,11 @@ public class MigrateData extends Task {
                            metadata.getColumnType(i));
             }
             altResults.close();
+            rsClosed++;
+            status(this);
             state.close();
+            stClosed++;
+            status(this);;
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -453,7 +508,11 @@ public class MigrateData extends Task {
         for (final String column : retval.keySet()) {
             try {
                 final Statement state = targetDb.createStatement();                
+                stOpened++;
+                status(this);
                 final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
+                rsOpened++;
+                status(this);
                 final ResultSetMetaData metadata = altResults.getMetaData();
 
                 for (int i = 1; i <= metadata.getColumnCount(); i++) {
@@ -461,7 +520,11 @@ public class MigrateData extends Task {
                                metadata.getColumnType(i));
                 }
                 altResults.close();
+                rsClosed++;
+                status(this);
                 state.close();
+                stClosed++;
+                status(this);
             }
             catch (Exception e) {
                 throw new BuildException(e);
@@ -481,9 +544,13 @@ public class MigrateData extends Task {
         try {
             statement = conn.createStatement();
             final ResultSet results = statement.executeQuery(query);
+            rsOpened++;
+            status(this);
             results.next();
             final int retval = results.getInt(COUNT_FIELD);
             results.close();
+            rsClosed++;
+            status(this);
             return retval;
         }
         catch (Exception e) {
@@ -640,5 +707,16 @@ public class MigrateData extends Task {
                 out.println(String.format("(%s)%% %s of %s records", (int) ((count / total) * 100), (int) count, (int) total));
             }
         }
+    }
+    
+    private static void status(MigrateData task) {
+        final StringBuilder log = new StringBuilder("\n");
+        log.append("Opened Statements: ").append(stOpened).append("\n")
+            .append("Closed Statements: ").append(stClosed).append("\n")
+            .append("Total Open Statements: ").append(stOpened - stClosed).append("\n\n")
+            .append("Opened ResultSets: ").append(rsOpened).append("\n")
+            .append("Closed ResultSets: ").append(rsClosed).append("\n")
+            .append("Total Open ResultSets: ").append(rsOpened - rsClosed).append("\n");
+        task.log(log.toString());
     }
 }
