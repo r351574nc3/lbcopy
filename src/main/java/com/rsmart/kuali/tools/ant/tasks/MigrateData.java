@@ -75,12 +75,6 @@ public class MigrateData extends Task {
     private String target;
     private int threadCount;
 
-    private static int openCursors = 0;
-    private static int stOpened = 0;
-    private static int stClosed = 0;
-    private static int rsOpened = 0;
-    private static int rsClosed = 0;
-
     public MigrateData() { 
         int threadCount = 1;
     }
@@ -152,8 +146,6 @@ public class MigrateData extends Task {
             final Connection targetDb = openConnection(target);
             if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                 Statement st = targetDb.createStatement();
-                stOpened++;
-                status(this);
                 st.execute("CHECKPOINT"); 
                 st.close();
             }
@@ -180,8 +172,6 @@ public class MigrateData extends Task {
         }
 
         PreparedStatement toStatement = prepareStatement(targetDb, tableName, columns);
-        stOpened++;
-        status(this);
         Statement fromStatement = null;
 
         final boolean hasClob = columns.values().contains(Types.CLOB);
@@ -189,82 +179,88 @@ public class MigrateData extends Task {
         
         try {
             fromStatement = sourceDb.createStatement();
-            stOpened++;
-            status(this);
-
             final ResultSet results = fromStatement.executeQuery(String.format(SELECT_ALL_QUERY, tableName));
-            rsOpened++;
-            status(this);
-            while (results.next()) {
-                try {
-                    toStatement.clearParameters();
-                    
-                    int i = 1;
-                    for (String columnName : columns.keySet()) {
-                        final Object value = results.getObject(columnName);
+            
+            try {
+                while (results.next()) {
+                    try {
+                        toStatement.clearParameters();
                         
-                        if (value != null) {
-                            try {
-                                handleLob(toStatement, value, i);
-                            }
-                            catch (Exception e) {
-                                System.err.println(String.format("Error processing %s.%s %s", tableName, columnName, columns.get(columnName)));
-                                if (Clob.class.isAssignableFrom(value.getClass())) {
-                                    System.err.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                        int i = 1;
+                        for (String columnName : columns.keySet()) {
+                            final Object value = results.getObject(columnName);
+                            
+                            if (value != null) {
+                                try {
+                                    handleLob(toStatement, value, i);
                                 }
-                                e.printStackTrace();
-                            }
-                        }
-                        else {
-                            toStatement.setObject(i,value);
-                        } 
-                        i++;
-                    }
-                    
-                    boolean retry = true;
-                    int retry_count = 0;
-                    while(retry) {
-                        try {
-                            toStatement.execute();
-                            retry = false;
-                        }
-                        catch (SQLException sqle) {
-                            retry = false;
-                            if (sqle.getMessage().contains("ORA-00942")) {
-                                log("Couldn't find " + tableName);
-                                log("Tried insert statement " + getStatementBuffer(tableName, columns));
-                                // sqle.printStackTrace();
-                            }
-                            else if (sqle.getMessage().contains("ORA-12519")) {
-                                retry = true;
-                                log("Tried insert statement " + getStatementBuffer(tableName, columns));
-                                sqle.printStackTrace();
-                            }
-                            else if (sqle.getMessage().contains("IN or OUT")) {
-                                log("Column count was " + columns.keySet().size());
-                            }
-                            else if (sqle.getMessage().contains("Error reading")) {
-                                if (retry_count > 5) {
-                                    log("Tried insert statement " + getStatementBuffer(tableName, columns));
-                                    retry = false;
+                                catch (Exception e) {
+                                    System.err.println(String.format("Error processing %s.%s %s", tableName, columnName, columns.get(columnName)));
+                                    if (Clob.class.isAssignableFrom(value.getClass())) {
+                                        System.err.println("Got exception trying to insert CLOB with length" + ((Clob) value).length());
+                                    }
+                                    e.printStackTrace();
                                 }
-                                retry_count++;
                             }
                             else {
-                                sqle.printStackTrace();
+                                toStatement.setObject(i,value);
+                            } 
+                            i++;
+                        }
+                        
+                        boolean retry = true;
+                        int retry_count = 0;
+                        while(retry) {
+                            try {
+                                toStatement.execute();
+                                retry = false;
+                            }
+                            catch (SQLException sqle) {
+                                retry = false;
+                                if (sqle.getMessage().contains("ORA-00942")) {
+                                    log("Couldn't find " + tableName);
+                                    log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                    // sqle.printStackTrace();
+                                }
+                                else if (sqle.getMessage().contains("ORA-12519")) {
+                                    retry = true;
+                                    log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                    sqle.printStackTrace();
+                                }
+                                else if (sqle.getMessage().contains("IN or OUT")) {
+                                    log("Column count was " + columns.keySet().size());
+                                }
+                                else if (sqle.getMessage().contains("Error reading")) {
+                                    if (retry_count > 5) {
+                                        log("Tried insert statement " + getStatementBuffer(tableName, columns));
+                                        retry = false;
+                                    }
+                                    retry_count++;
+                                }
+                                else {
+                                    sqle.printStackTrace();
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception e) {
-                    recordsLost++;
-                    throw e;
-                }
-                finally {
-                    observable.incrementRecord();
+                    catch (Exception e) {
+                        recordsLost++;
+                        throw e;
+                    }
+                    finally {
+                        observable.incrementRecord();
+                    }
                 }
             }
-            results.close();
+            finally {
+                if (results != null) {
+                    try {
+                        results.close();
+                    }
+                    catch(Exception e) {
+                    }
+                }
+            }
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -274,16 +270,10 @@ public class MigrateData extends Task {
                 try {
                     if (sourceDb.getMetaData().getDriverName().toLowerCase().contains("hsqldb")) {
                         Statement st = sourceDb.createStatement();
-                        stOpened++;
-                        status(this);
                         st.execute("CHECKPOINT"); 
                         st.close();
-                        stClosed++;
-                        status(this);
                     }
                     fromStatement.close();
-                    stClosed++;
-                    status(this);
                     sourceDb.close();
                 }
                 catch (Exception e) {
@@ -295,16 +285,10 @@ public class MigrateData extends Task {
                     targetDb.commit();
                     if (targetDb.getMetaData().getDriverName().toLowerCase().contains("hsql")) {
                         Statement st = targetDb.createStatement();
-                        stOpened++;
-                        status(this);
                         st.execute("CHECKPOINT"); 
                         st.close();
-                        stClosed++;
-                        status(this);
                     }
                     toStatement.close();
-                    stClosed++;
-                    status(this);
                     targetDb.close();
                 }
                 catch (Exception e) {
@@ -333,8 +317,6 @@ public class MigrateData extends Task {
         final String statement = getStatementBuffer(tableName, columns);
         
         try {
-            stOpened++;
-            status(this);
             return conn.prepareStatement(statement);
         }
         catch (Exception e) {
@@ -368,8 +350,6 @@ public class MigrateData extends Task {
         final RdbmsConfig source = (RdbmsConfig) getProject().getReference(getSource());
         try {
             final ResultSet rs = metadata.getColumns(null, source.getSchema(), tableName, null);
-            rsOpened++;
-            status(this);
             int columnCount = 0;
             boolean hasId = false;
             try {
@@ -409,7 +389,6 @@ public class MigrateData extends Task {
         try {
             final DatabaseMetaData metadata = sourceConn.getMetaData();
             final ResultSet tableResults = metadata.getTables(sourceConn.getCatalog(), source.getSchema(), null, new String[] { "TABLE" });
-            rsOpened++;
             while (tableResults.next()) {
                 final String tableName = tableResults.getString("TABLE_NAME");
                 if (!isValidTable(metadata, tableName)) {
@@ -425,7 +404,6 @@ public class MigrateData extends Task {
                 retval.put(tableName, rowCount);
             }
             tableResults.close();
-            rsClosed++;
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -444,15 +422,11 @@ public class MigrateData extends Task {
         try {
             for (String tableName : retval.keySet()) {
                 final ResultSet tableResults = targetConn.getMetaData().getTables(targetConn.getCatalog(), target.getSchema(), null, new String[] { "TABLE" });
-                rsOpened++;
-                status(this);
                 if (!tableResults.next()) {
                     log("Removing " + tableName);
                     toRemove.add(tableName);
                 }
                 tableResults.close();
-                rsClosed++;
-                status(this);
             }
         }
         catch (Exception e) {
@@ -483,11 +457,7 @@ public class MigrateData extends Task {
         final Collection<String> toRemove = new ArrayList<String>();
         try {
             final Statement state = targetDb.createStatement();                
-            stOpened++;
-            status(this);
             final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
-            rsOpened++;
-            status(this);
             final ResultSetMetaData metadata = altResults.getMetaData();
             
             for (int i = 1; i <= metadata.getColumnCount(); i++) {
@@ -495,11 +465,7 @@ public class MigrateData extends Task {
                            metadata.getColumnType(i));
             }
             altResults.close();
-            rsClosed++;
-            status(this);
             state.close();
-            stClosed++;
-            status(this);;
         }
         catch (Exception e) {
             throw new BuildException(e);
@@ -508,11 +474,7 @@ public class MigrateData extends Task {
         for (final String column : retval.keySet()) {
             try {
                 final Statement state = targetDb.createStatement();                
-                stOpened++;
-                status(this);
                 final ResultSet altResults = state.executeQuery("select * from " + tableName + " where 1 = 0");
-                rsOpened++;
-                status(this);
                 final ResultSetMetaData metadata = altResults.getMetaData();
 
                 for (int i = 1; i <= metadata.getColumnCount(); i++) {
@@ -520,11 +482,7 @@ public class MigrateData extends Task {
                                metadata.getColumnType(i));
                 }
                 altResults.close();
-                rsClosed++;
-                status(this);
                 state.close();
-                stClosed++;
-                status(this);
             }
             catch (Exception e) {
                 throw new BuildException(e);
@@ -544,13 +502,9 @@ public class MigrateData extends Task {
         try {
             statement = conn.createStatement();
             final ResultSet results = statement.executeQuery(query);
-            rsOpened++;
-            status(this);
             results.next();
             final int retval = results.getInt(COUNT_FIELD);
             results.close();
-            rsClosed++;
-            status(this);
             return retval;
         }
         catch (Exception e) {
@@ -708,15 +662,4 @@ public class MigrateData extends Task {
             }
         }
     }
-    
-    private static void status(MigrateData task) {
-        final StringBuilder log = new StringBuilder("\n");
-        log.append("Opened Statements: ").append(stOpened).append("\n")
-            .append("Closed Statements: ").append(stClosed).append("\n")
-            .append("Total Open Statements: ").append(stOpened - stClosed).append("\n\n")
-            .append("Opened ResultSets: ").append(rsOpened).append("\n")
-            .append("Closed ResultSets: ").append(rsClosed).append("\n")
-            .append("Total Open ResultSets: ").append(rsOpened - rsClosed).append("\n");
-        task.log(log.toString());
-    }
-}
+}    
