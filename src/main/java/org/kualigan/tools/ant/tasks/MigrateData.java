@@ -46,9 +46,6 @@ import org.apache.tools.ant.Main;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
-import oracle.jdbc.OraclePreparedStatement;
-import oracle.jdbc.pool.OracleDataSource;
-
 import static org.apache.tools.ant.Project.MSG_DEBUG;
 
 /**
