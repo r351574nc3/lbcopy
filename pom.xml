@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
-	<!-- 
-		The default build of this project targets a servlet 2.4 web container.  Profiles are provided for
-		targeting different environments.
-	 -->
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.rsmart.kuali.tools.liquibase</groupId>
-	<artifactId>rsmart-lb-extensions</artifactId>
+    <parent>
+        <groupId>org.kuali.pom</groupId>
+        <artifactId>kuali-maven</artifactId>
+        <version>1.4.6</version>
+    </parent>
+    <groupId>org.kualigan.liquibase</groupId>
+	<artifactId>kualigan-lb-extensions</artifactId>
 	<packaging>jar</packaging>
 	<name>Liquibase Extensions</name>
 	<version>1.0.0</version>
@@ -208,6 +208,37 @@
       </dependency>
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>kualigan-release</id>
+            <properties>
+                <kuali.release.profiles>kualigan-release</kuali.release.profiles>
+            </properties>
+            <build>
+                <plugins>
+                  <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <configuration>
+                      <updateReleaseInfo>true</updateReleaseInfo>
+                    </configuration>
+                  </plugin>
+                  <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <executions>
+                      <execution>
+                        <id>gpg</id>
+                        <phase>${kuali.gpg.phase}</phase>
+                        <goals>
+                          <goal>sign</goal>
+                        </goals>
+                      </execution>
+                    </executions>
+                  </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
     <scm>
       <connection>scm:git:git://github.com/r351574nc3/lbext.git</connection>
       <developerConnection>scm:git:git://github.com/r351574nc3/lbext.git</developerConnection>
