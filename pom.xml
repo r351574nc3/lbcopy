@@ -285,12 +285,12 @@
         </profile>
     </profiles>
 
-    <scm>
-      <connection>scm:git:git://github.com/r351574nc3/lbcopy.git</connection>
-      <developerConnection>scm:git:ssh://github.com/r351574nc3/lbcopy.git</developerConnection>
-      <url>http://www.github.com/r351574nc3/lbcopy</url>
-    </scm>
-    
+  <scm>
+    <connection>scm:git:git://github.com/r351574nc3/lbcopy.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/r351574nc3/lbcopy.git</developerConnection>
+    <url>https://github.com/r351574nc3/lbcopy</url>
+  </scm>
+  
   <distributionManagement>
     <repository>
       <id>sonatype-nexus-staging</id>
