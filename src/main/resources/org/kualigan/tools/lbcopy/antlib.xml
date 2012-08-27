@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<antlib>
+   <taskdef name="rdbmsConfig"            classname="org.kualigan.tools.ant.tasks.RdbmsConfig" />
+   <taskdef name="migrateData"            classname="org.kualigan.tools.ant.tasks.MigrateData" />
+   <taskdef name="dropAllDatabaseObjects" classname="org.kualigan.tools.ant.tasks.DropAllTask" />
+   <taskdef name="generateChangeLog"      classname="org.kualigan.tools.ant.tasks.GenerateChangeLog" />
+   <taskdef name="updateDatabase"         classname="org.kualigan.tools.ant.tasks.DatabaseUpdateTask" />
+   <taskdef name="liquibaseSetup"         classname="org.kualigan.tools.ant.tasks.LiquibaseSetup" />
+</antlib>
+

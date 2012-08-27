@@ -1,4 +1,4 @@
-package com.rsmart.kuali.tools.ant.tasks;
+package org.kualigan.tools.ant.tasks;
 
 import liquibase.Liquibase;
 import liquibase.integration.ant.BaseLiquibaseTask;

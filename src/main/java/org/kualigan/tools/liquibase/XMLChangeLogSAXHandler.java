@@ -1,4 +1,4 @@
-package com.rsmart.kuali.tools.liquibase;
+package org.kualigan.tools.liquibase;
 
 import java.io.File;
 import java.io.IOException;
