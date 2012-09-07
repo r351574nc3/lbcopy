@@ -211,7 +211,7 @@
       <dependency>
         <groupId>org.kualigan.liquibase</groupId>
         <artifactId>kualigan-lb-extensions</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
       </dependency>
       <dependency>
         <groupId>com.h2database</groupId>
@@ -253,7 +253,7 @@
                 <version>${ojdbc6.version}</version>
             </dependency>
          </dependencies>
-        </profile>    
+        </profile>
         <profile>
             <id>kualigan-release</id>
             <properties>
