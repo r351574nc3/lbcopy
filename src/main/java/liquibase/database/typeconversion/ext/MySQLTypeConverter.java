@@ -119,6 +119,17 @@ public class MySQLTypeConverter extends liquibase.database.typeconversion.core.M
 		return referenceColumn.getTypeName();
 	    }
 	}
+
+	if (referenceColumn.getDefaultValue() != null 
+	    && referenceColumn.getDefaultValue().toString().equalsIgnoreCase("sysdate")) {
+	    referenceColumn.setDefaultValue("NOW()");
+	    try {
+		return getSqlTypeName(Types.TIMESTAMP);
+	    }
+	    catch (Exception e) {
+		return referenceColumn.getTypeName();
+	    }
+	}
         
         return retval.toString();
     }
@@ -165,9 +176,8 @@ public class MySQLTypeConverter extends liquibase.database.typeconversion.core.M
             returnTypeName = getClobType();
         } else if (dataTypeName.equalsIgnoreCase("CURRENCY")) {
             returnTypeName = getCurrencyType();
-        } else if (dataTypeName.equalsIgnoreCase("DATE") || dataTypeName.equalsIgnoreCase(getDateType().getDataTypeName())) {
-            returnTypeName = getDateType();
-        } else if (dataTypeName.equalsIgnoreCase("DATETIME") || dataTypeName.equalsIgnoreCase(getDateTimeType().getDataTypeName())) {
+        } else if (dataTypeName.equalsIgnoreCase("DATE") || dataTypeName.equalsIgnoreCase(getDateType().getDataTypeName())
+		   || dataTypeName.equalsIgnoreCase("DATETIME") || dataTypeName.equalsIgnoreCase(getDateTimeType().getDataTypeName())) {
             returnTypeName = getDateTimeType();
         } else if (dataTypeName.equalsIgnoreCase("DOUBLE")) {
             returnTypeName = getDoubleType();
