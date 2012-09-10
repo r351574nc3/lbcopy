@@ -154,7 +154,6 @@ public class MySQLTypeConverter extends liquibase.database.typeconversion.core.M
             returnTypeName = getBigIntType();
         } else if (dataTypeName.equalsIgnoreCase("DECIMAL")
                    || dataTypeName.equalsIgnoreCase("NUMERIC")) {
-	    info("Type is a number type");
             returnTypeName = getNumberType();
         } else if (dataTypeName.equalsIgnoreCase("BLOB")) {
             returnTypeName = getBlobType();
