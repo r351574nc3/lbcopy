@@ -10,7 +10,7 @@
   <artifactId>kualigan-lb-extensions</artifactId>
   <packaging>jar</packaging>
   <name>Liquibase Extensions</name>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.4</version>
   <description>Extensions to liquibase that make it more database agnostic</description>
   <url>http://r351574nc3.github.com/lbext</url>
   <organization>
