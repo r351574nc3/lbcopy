@@ -54,7 +54,7 @@ import static liquibase.ext.Constants.EXTENSION_PRIORITY;
 public class GenericTypeConverter extends liquibase.database.typeconversion.core.AbstractTypeConverter {
 
     public int getPriority() {
-        return -1 * EXTENSION_PRIORITY;
+        return EXTENSION_PRIORITY;
     }
     
     protected static final List<Integer> oneParam = Arrays.asList(
@@ -92,8 +92,8 @@ public class GenericTypeConverter extends liquibase.database.typeconversion.core
     }
 
 
-	@Override
-	public BooleanType getBooleanType() {
-		return new BooleanType.NumericBooleanType(getNumberType().getDataTypeName());
-	}
+    @Override
+    public BooleanType getBooleanType() {
+	return new BooleanType.NumericBooleanType(getNumberType().getDataTypeName());
+    }
 }
