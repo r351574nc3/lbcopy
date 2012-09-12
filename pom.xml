@@ -10,7 +10,7 @@
     <artifactId>kualigan-lb-ant</artifactId>
     <packaging>jar</packaging>
     <name>Liquibase Database Copy Ant tasks</name>
-    <version>1.0.8</version>
+    <version>1.0.9-SNAPSHOT</version>
     <description>Custom Liquibase Ant tasks for fast database migration</description>
     <url>http://r351574nc3.github.com/lbcopy/</url>
     <organization>
