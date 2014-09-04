@@ -1,10 +1,12 @@
 package org.kualigan.tools.ant.tasks;
 
+import liquibase.CatalogAndSchema;
 import liquibase.Liquibase;
 import liquibase.integration.ant.BaseLiquibaseTask;
 import liquibase.util.StringUtils;
 import org.apache.tools.ant.BuildException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DropAllTask extends BaseLiquibaseTask {
@@ -19,7 +21,7 @@ public class DropAllTask extends BaseLiquibaseTask {
         this.schemas = schemas;
     }
     
-    public void execute() throws BuildException {
+    protected void executeWithLiquibaseClassloader() throws BuildException {
         Liquibase liquibase = null;
         try {
             liquibase = createLiquibase();
@@ -27,8 +29,13 @@ public class DropAllTask extends BaseLiquibaseTask {
             while (retry) {
                 try {
                     if (StringUtils.trimToNull(schemas) != null) {
-                        List<String> schemas = StringUtils.splitAndTrim(this.schemas, ",");
-                        liquibase.dropAll(schemas.toArray(new String[schemas.size()]));
+                        final List<CatalogAndSchema> schemas = new ArrayList<CatalogAndSchema>() {{
+                                for (final String schema : StringUtils.splitAndTrim(getSchemas(), ",")) {
+                                    add(new CatalogAndSchema(null, schema));
+                                }
+                            }};
+                        
+                        liquibase.dropAll(schemas.toArray(new CatalogAndSchema[schemas.size()]));
                     } else {
                         liquibase.dropAll();
                     }

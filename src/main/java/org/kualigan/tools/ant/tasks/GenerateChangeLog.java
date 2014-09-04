@@ -43,7 +43,8 @@ import org.apache.tools.ant.BuildException;
 import org.h2.tools.Backup;
 import org.h2.tools.DeleteDbFiles;
 
-import org.kualigan.tools.liquibase.Diff;
+import org.kualigan.tools.liquibase.DiffGenerator;
+import org.kualigan.tools.liquibase.DiffGeneratorFactory;
 import org.kualigan.tools.liquibase.DiffResult;
 
 import java.io.File;
@@ -148,8 +149,14 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
     }
 
     protected void exportSchema(Database source, Database target) {
+        final SnapshotControl snapshotControl = new SnapshotControl(this.getDatabase(), snapshotTypes);
+        final CompareControl compareControl = new CompareControl(new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(catalogAndSchema, catalogAndSchema)}, finalCompareTypes);
+        //        compareControl.addStatusListener(new OutDiffStatusListener());
+
+        DatabaseSnapshot originalDatabaseSnapshot = null;
         try {
-            Diff diff = new Diff(source, source.getDefaultSchemaName());
+            originalDatabaseSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), getDatabase(), snapshotControl);
+
             exportTables(diff, target);
             exportSequences(diff, target);
             exportViews(diff, target);
@@ -165,7 +172,10 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         diff.setDiffTypes(diffTypes);
         
         try {
-            DiffResult results = diff.compare();
+            final DiffResult results = DiffGeneratorFactory.getInstance()
+                .compare(originalDatabaseSnapshot, 
+                         SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), null, snapshotControl), 
+                         compareControl);
             results.printChangeLog(getChangeLogFile() + suffix, target);
         } 
         catch (Exception e) {

@@ -22,7 +22,7 @@ public class DatabaseUpdateTask extends BaseLiquibaseTask {
     }
 
     @Override
-    public void execute() throws BuildException {
+    protected void executeWithLiquibaseClassloader() throws BuildException {
         if (!shouldRun()) {
             return;
         }
