@@ -58,7 +58,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 class XMLChangeLogSAXHandler extends DefaultHandler {
-
+    /*
 	private static final char LIQUIBASE_FILE_SEPARATOR = '/';
 
 	protected Logger log;
@@ -670,10 +670,11 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
 			text.append(new String(ch, start, length));
 		}
 	}
-
+	/*
 	/**
 	 * Wrapper for Attributes that expands the value as needed
 	 */
+    /*
 	private class ExpandingAttributes implements Attributes {
 		private Attributes attributes;
 
@@ -758,4 +759,5 @@ class XMLChangeLogSAXHandler extends DefaultHandler {
 
         return tempDir;
     }
+*/
 }

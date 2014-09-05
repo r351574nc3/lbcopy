@@ -181,12 +181,12 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         final CompareControl compareControl   = new CompareControl(new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(catalogAndSchema, catalogAndSchema)}, snapshotTypes);
         //        compareControl.addStatusListener(new OutDiffStatusListener());
 
-        final DatabaseSnapshot referenceSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), getDatabase(), snapshotControl);
-	final DatabaseSnapshot comparisonSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), null, snapshotControl);
-        diff.setDiffTypes(diffTypes);
+        final DatabaseSnapshot referenceSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), source, snapshotControl);
+	final DatabaseSnapshot comparisonSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), target, snapshotControl);
+        // diff.setDiffTypes(snapshotTypes);
 
 	final DiffResult results = DiffGeneratorFactory.getInstance().compare(referenceSnapshot, comparisonSnapshot, compareControl);
-	results.printChangeLog(getChangeLogFile() + suffix, target);
+	// results.printChangeLog(getChangeLogFile() + suffix, target);
     }
 
     protected void exportConstraints(final Database source, final Database target) throws Exception {
@@ -225,7 +225,7 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
             h2db = factory.findCorrectDatabaseImplementation(new JdbcConnection(openConnection("h2")));
             h2db.setDefaultSchemaName(h2Config.getSchema());
             
-            export(new Diff(source, getDefaultSchemaName()), h2db, "tables", "-dat.xml");
+	    // export(new Diff(source, getDefaultSchemaName()), h2db, "tables", "-dat.xml");
 
             ResourceAccessor antFO = new AntResourceAccessor(getProject(), classpath);
             ResourceAccessor fsFO = new FileSystemResourceAccessor();
