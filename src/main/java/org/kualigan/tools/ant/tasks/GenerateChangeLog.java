@@ -28,24 +28,30 @@ package org.kualigan.tools.ant.tasks;
 import org.apache.tools.ant.taskdefs.Jar;
 import org.apache.tools.ant.types.FileSet;
 
+import liquibase.CatalogAndSchema;
+import liquibase.Liquibase;
 import liquibase.resource.CompositeResourceAccessor;
 import liquibase.resource.FileSystemResourceAccessor;
 import liquibase.resource.ResourceAccessor;
-import liquibase.Liquibase;
 import liquibase.integration.ant.AntResourceAccessor;
 import liquibase.integration.ant.BaseLiquibaseTask;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.core.H2Database;
 import liquibase.database.jvm.JdbcConnection;
+import liquibase.structure.DatabaseObject;
+import liquibase.snapshot.DatabaseSnapshot;
+import liquibase.snapshot.SnapshotControl;
+import liquibase.snapshot.SnapshotGeneratorFactory;
 import org.apache.tools.ant.BuildException;
 
 import org.h2.tools.Backup;
 import org.h2.tools.DeleteDbFiles;
 
-import org.kualigan.tools.liquibase.DiffGenerator;
-import org.kualigan.tools.liquibase.DiffGeneratorFactory;
-import org.kualigan.tools.liquibase.DiffResult;
+import liquibase.ext.kualigan.diff.DiffGenerator;
+import liquibase.diff.DiffGeneratorFactory;
+import liquibase.diff.DiffResult;
+import liquibase.diff.compare.CompareControl;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -53,6 +59,10 @@ import java.io.PrintStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.apache.tools.ant.Project.MSG_DEBUG;
 
@@ -91,7 +101,8 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         return this.target;
     }
     
-    public void execute() {
+    @Override
+    protected void executeWithLiquibaseClassloader() throws BuildException {
         final RdbmsConfig source = (RdbmsConfig) getProject().getReference(getSource());
         final RdbmsConfig target = (RdbmsConfig) getProject().getReference(getTarget());
         Database lbSource = null;
@@ -148,63 +159,58 @@ public class GenerateChangeLog extends BaseLiquibaseTask {
         }
     }
 
-    protected void exportSchema(Database source, Database target) {
-        final SnapshotControl snapshotControl = new SnapshotControl(this.getDatabase(), snapshotTypes);
-        final CompareControl compareControl = new CompareControl(new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(catalogAndSchema, catalogAndSchema)}, finalCompareTypes);
+    protected void exportSchema(final Database source, final Database target) {
+        try {
+            exportTables(source, target);
+            exportSequences(source, target);
+            exportViews(source, target);
+            exportIndexes(source, target);
+            exportConstraints(source, target);
+        }
+        catch (Exception e) {
+            throw new BuildException(e);
+        }
+    }
+
+    protected void export(final Database source, 
+			  final Database target, 
+			  final String snapshotTypes, 
+			  final String suffix) throws Exception {
+	final CatalogAndSchema catalogAndSchema = source.getDefaultSchema();
+        final SnapshotControl snapshotControl = new SnapshotControl(source, snapshotTypes);
+        final CompareControl compareControl   = new CompareControl(new CompareControl.SchemaComparison[]{new CompareControl.SchemaComparison(catalogAndSchema, catalogAndSchema)}, snapshotTypes);
         //        compareControl.addStatusListener(new OutDiffStatusListener());
 
-        DatabaseSnapshot originalDatabaseSnapshot = null;
-        try {
-            originalDatabaseSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), getDatabase(), snapshotControl);
-
-            exportTables(diff, target);
-            exportSequences(diff, target);
-            exportViews(diff, target);
-            exportIndexes(diff, target);
-            exportConstraints(diff, target);
-        }
-        catch (Exception e) {
-            throw new BuildException(e);
-        }
-    }
-
-    protected void export(Diff diff, Database target, String diffTypes, String suffix) {
+        final DatabaseSnapshot referenceSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), getDatabase(), snapshotControl);
+	final DatabaseSnapshot comparisonSnapshot = SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), null, snapshotControl);
         diff.setDiffTypes(diffTypes);
-        
-        try {
-            final DiffResult results = DiffGeneratorFactory.getInstance()
-                .compare(originalDatabaseSnapshot, 
-                         SnapshotGeneratorFactory.getInstance().createSnapshot(compareControl.getSchemas(CompareControl.DatabaseRole.REFERENCE), null, snapshotControl), 
-                         compareControl);
-            results.printChangeLog(getChangeLogFile() + suffix, target);
-        } 
-        catch (Exception e) {
-            throw new BuildException(e);
-        }
+
+	final DiffResult results = DiffGeneratorFactory.getInstance().compare(referenceSnapshot, comparisonSnapshot, compareControl);
+	results.printChangeLog(getChangeLogFile() + suffix, target);
     }
 
-    protected void exportConstraints(Diff diff, Database target) {
-        export(diff, target, "foreignKeys", "-cst.xml");
+    protected void exportConstraints(final Database source, final Database target) throws Exception {
+        export(source, target, "foreignKeys", "-cst.xml");
     }
 
-    protected void exportIndexes(Diff diff, Database target) {
-        export(diff, target, "indexes", "-idx.xml");
+    protected void exportIndexes(final Database source, final Database target) throws Exception {
+        export(source, target, "indexes", "-idx.xml");
     }
 
-    protected void exportViews(Diff diff, Database target) {
-        export(diff, target, "views", "-vw.xml");
+    protected void exportViews(final Database source, final Database target) throws Exception {
+        export(source, target, "views", "-vw.xml");
     }
 
-    protected void exportTables(Diff diff, Database target) {
-        export(diff, target, "tables, primaryKeys, uniqueConstraints", "-tab.xml");
+    protected void exportTables(final Database source, final Database target) throws Exception {
+        export(source, target, "tables, primaryKeys, uniqueConstraints", "-tab.xml");
     }
 
-    protected void exportSequences(Diff diff, Database target) {
-        export(diff, target, "sequences", "-seq.xml");
+    protected void exportSequences(final Database source, final Database target) throws Exception {
+        export(source, target, "sequences", "-seq.xml");
     }
 
 
-    private void exportData(Database source, Database target) {
+    private void exportData(final Database source, final Database target) {
         Database h2db = null;
         RdbmsConfig h2Config = new RdbmsConfig();
         h2Config.setDriver("org.h2.Driver");
