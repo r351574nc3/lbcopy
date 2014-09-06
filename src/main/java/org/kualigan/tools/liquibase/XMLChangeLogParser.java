@@ -54,6 +54,7 @@ public class XMLChangeLogParser extends liquibase.parser.core.xml.XMLChangeLogSA
         return "2.0";
     }
 
+    /*
     public DatabaseChangeLog parse(String physicalChangeLogLocation, ChangeLogParameters changeLogParameters, ResourceAccessor resourceAccessor) throws ChangeLogParseException {
 
         InputStream inputStream = null;
@@ -143,4 +144,5 @@ public class XMLChangeLogParser extends liquibase.parser.core.xml.XMLChangeLogSA
             }
         }
     }
+    */
 }

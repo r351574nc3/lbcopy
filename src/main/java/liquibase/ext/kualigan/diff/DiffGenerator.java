@@ -139,7 +139,6 @@ public class DiffGenerator implements liquibase.diff.DiffGenerator {
         }
     }
 
-    @Override
     protected void checkVersionInfo(final DatabaseSnapshot referenceSnapshot, 
 				    final DatabaseSnapshot comparisonSnapshot, 
 				    final DiffResult diffResult) throws DatabaseException {
